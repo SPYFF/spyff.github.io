@@ -1,7 +1,7 @@
 baseURL = "http://localhost:1313/"
 languageCode = "en"
 defaultContentLanguage = "en"                             # en / zh-cn / ... (This field determines which i18n file to use)
-title = "Even - A super concise theme for Hugo"
+title = "Ferenc Fejes technical blog"
 preserveTaxonomyNames = true
 enableRobotsTXT = true
 enableEmoji = true
@@ -18,7 +18,7 @@ hasCJKLanguage = true     # has chinese/japanese/korean
 paginate = 5                                            
 disqusShortname = ""      # disqus_shortname
 googleAnalytics = ""      # UA-XXXXXXXX-X
-copyright = ""            # default: author.name
+copyright = "Ferenc Fejes"            # default: author.name
 
 [author]                  # essential
   name = "Ferenc Fejes"
@@ -58,9 +58,9 @@ copyright = ""            # default: author.name
   gitRepo = ""
 
   # site info (optional) 
-  logoTitle = "Even"        # default: the title value 
-  keywords = ["Hugo", "theme","even"]
-  description = "Hugo theme even example site."
+  logoTitle = "Ferenc Fejes technical blog"        # default: the title value 
+  keywords = ["Ferenc", "Fejes", "MPTCP", "proxy", "eBPF", "linux", "networking"]
+  description = "Ferenc Fejes technical blog."
 
   # paginate of archives, tags and categories
   archivePaginate = 5
@@ -88,7 +88,7 @@ copyright = ""            # default: author.name
   mathjaxEnableAutoNumber = false
   mathjaxUseLocalFiles = false  # You should install mathjax in `yout-site/static/lib/mathjax`
 
-  postMetaInFooter = true   # contain author, lastMod, markdown link, license
+  postMetaInFooter = false   # contain author, lastMod, markdown link, license
   linkToMarkDown = false    # Only effective when hugo will output .md files.
   contentCopyright = ''     # e.g. '<a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a>'
 
@@ -110,7 +110,7 @@ copyright = ""            # default: author.name
   uglyURLs = false          # please keep same with uglyurls setting
 
   [params.publicCDN]        # load these files from public cdn
-    enable = true
+    enable = false
     jquery = '<script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>'
     slideout = '<script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>'
     fancyboxJS = '<script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>'
@@ -176,21 +176,21 @@ copyright = ""            # default: author.name
     alipay = "/path/to/your/alipay-qr-code.png"
 
   [params.social]
-    a-email = "mailto:your@email.com"
-    b-stack-overflow = "http://localhost:1313"
-    c-twitter = "http://localhost:1313"
-    d-facebook = "http://localhost:1313"
-    e-linkedin = "http://localhost:1313"
-    f-google = "http://localhost:1313"
-    g-github = "http://localhost:1313"
-    h-weibo = "http://localhost:1313"
-    i-zhihu = "http://localhost:1313"
-    j-douban = "http://localhost:1313"
-    k-pocket = "http://localhost:1313"
-    l-tumblr = "http://localhost:1313"
-    m-instagram = "http://localhost:1313"
-    n-gitlab = "http://localhost:1313"
-    o-bilibili = "http://localhost:1313"
+    a-email = "mailto:primalgamer@gmail.com"
+#    b-stack-overflow = "http://localhost:1313"
+    c-twitter = "https://twitter.com/spyff0"
+#    d-facebook = "http://localhost:1313"
+    e-linkedin = "https://www.linkedin.com/in/fejes/"
+#    f-google = "http://localhost:1313"
+    g-github = "https://github.com/SPYFF"
+#    h-weibo = "http://localhost:1313"
+#    i-zhihu = "http://localhost:1313"
+#    j-douban = "http://localhost:1313"
+#    k-pocket = "http://localhost:1313"
+#    l-tumblr = "http://localhost:1313"
+#    m-instagram = "http://localhost:1313"
+#    n-gitlab = "http://localhost:1313"
+#    o-bilibili = "http://localhost:1313"
 
 # See https://gohugo.io/about/hugo-and-gdpr/
 [privacy]

@@ -4,7 +4,7 @@ date: 2017-10-21T15:00:00Z
 summary: Just added master branch with the actual (currently unstable but working)
   MPTCP implementation.
 title: LEDE MPTCP with kernel 4.9
-slug: ["mptcp"]
+slug: "mptcp"
 ---
 
 ![](/images/mptcp_lede/lede_mptcp_4.9.png)

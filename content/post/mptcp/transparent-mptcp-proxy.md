@@ -11,10 +11,11 @@ slug: "mptcp"
 # Brief intro
 * **LEDE** (Linux Embedded Development Environment) is a fork of OpenWRT the well known Linux distro for routers.
 * **MPTCP** (MultiPath Transmission Control Protocol) is defined in RFC 6824. Designed to use multiple network interfaces (Ethernet, Wi-Fi, LTE, etc.) for a communication session.
-* **shadowsocks-libev** is a lightweight proxy application. It has TCP redirection functionality (**ss-redir** module) which is used later.
+* **shadowsocks-libev** is a lightweight proxy application. It has TCP redirection functionality (**ss-redir** module) which will be used later.
 
 ## Main problem and the goal of the project
 In a Wi-Fi mesh network (like Freifunk backbone) there are multiple point-to-point links between the single nodes. I'm not really into it, but secondary links might be used for failover purposes or some load balancing work between the different paths. For better resource allocation, the free capacity on the secondary links should be used if it exists. That's where MPTCP comes in: we can build MPTCP subflows over them, and because of the smart congestion control algorithm it only uses as many bandwidth on the secondary link as many available. In this project, I will show step-by-step how You can achieve this kind of operation in real life environment. There are few things which are required for the project:
+
 * 2 routers
 * 4 Wi-Fi bridge for two point-to-point WAN Wi-Fi links (or 2 UDP cable for testing)
 * LEDE with MPTCP support
@@ -127,15 +128,15 @@ This command maybe runs, maybe drops an error with invalid config path but in bo
 You can choose other ciphers as well instead of `none`. Check shadowsocks-libev manual on the web for all the available ciphers. I added both WAN IP address of the other router.
 Then I opened up `/etc/rc.local` and added the following line before the `exit 0` line, to start ss-redir when the router boots up:
 ```
-ss-redir -c /etc/ss_redir.json
+# ss-redir -c /etc/ss_redir.json
 ```
 For redirecting, all the TCP traffic to ss-redir, add another lines into the `/etc/rc.local`. The 4. line is because we don't want to redirect traffic inside of the LAN.
 ```
-iptables -t nat -N SSREDIR
-iptables -t nat -A PREROUTING -p tcp -j SSREDIR
-iptables -t nat -A SSREDIR -d 127.0.0.0/8 -j RETURN
-iptables -t nat -A SSREDIR -d 192.168.78.0/24 -j RETURN
-iptables -t nat -A SSREDIR -p tcp -j REDIRECT --to-ports 1080
+# iptables -t nat -N SSREDIR
+# iptables -t nat -A PREROUTING -p tcp -j SSREDIR
+# iptables -t nat -A SSREDIR -d 127.0.0.0/8 -j RETURN
+# iptables -t nat -A SSREDIR -d 192.168.78.0/24 -j RETURN
+# iptables -t nat -A SSREDIR -p tcp -j REDIRECT --to-ports 1080
 ```
 The config for this router has done, reboot it.
 
@@ -159,18 +160,18 @@ Then create a configuration file for the ss-server. For example `/etc/ss_server.
 ```
 Add the following line before the `exit 0` into the `/etc/rc.local` to start ss-server on the router startup:
 ```
-ss-server -c /etc/ss_server.json
+# ss-server -c /etc/ss_server.json
 ```
 Thats it, reboot the router.
 
 ## 4. Verification of the MPTCP proxy operation
 To try out if the testbed works well, just start an **iperf3** measurement between the client machines. For example, in my case between the PC and the notebook:
 ```
-iperf3 -s
+$ iperf3 -s
 ```
 on the PC which is connected to the R7800 LAN.
 ```
-iperf3 -c 192.168.78.107
+$ iperf3 -c 192.168.78.107
 ```
 on the notebook which is connected to the R7000 LAN. The IP address there is my PC's IP address. If everything works, You should see the sum of the two Wi-Fi bridges throughput. Check the video from my test environment below.
 
@@ -178,6 +179,7 @@ on the notebook which is connected to the R7000 LAN. The IP address there is my 
 
 # Summary
 For more information from the project please check Freifunk blog posts linked below. This page is intended for my _Google Summer of Code_ project summary page. My contributions:
+
 * [LEDE fork with MPTCP support, check the git diff which  contains my modifications.](https://github.com/spyff/lede-mptcp)
 * [shadowsocks-libev fork **shadowsocks-libev-nocrpyto** with optional cipher support. Check the git diff for my modifications.](https://github.com/spyff/shadowsocks-libev-nocrypto)
 * [LEDE feed for my package(s).](https://github.com/spyff/packages)
