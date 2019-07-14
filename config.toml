@@ -6,7 +6,7 @@ preserveTaxonomyNames = true
 enableRobotsTXT = true
 enableEmoji = true
 theme = "even"
-enableGitInfo = false # use git commit log to generate lastmod record
+enableGitInfo = true # use git commit log to generate lastmod record
 
 # Syntax highlighting by Chroma. NOTE: Don't enable `highlightInClient` and `chroma` at the same time!
 pygmentsOptions = "linenos=table"
@@ -55,7 +55,7 @@ copyright = "Ferenc Fejes"            # default: author.name
 
   since = "2017"            # Site creation time
   # use public git repo url to link lastmod git commit, enableGitInfo should be true.
-  gitRepo = ""
+  gitRepo = "https://github.com/SPYFF/spyff.github.io/"
 
   # site info (optional) 
   logoTitle = "Ferenc Fejes technical blog"        # default: the title value 
@@ -72,7 +72,7 @@ copyright = "Ferenc Fejes"            # default: author.name
   dateFormatToUse = "2006-01-02"
 
   # show word count and read time
-  moreMeta = false
+  moreMeta = true
 
   # Syntax highlighting by highlight.js
   highlightInClient = false
@@ -88,9 +88,9 @@ copyright = "Ferenc Fejes"            # default: author.name
   mathjaxEnableAutoNumber = false
   mathjaxUseLocalFiles = false  # You should install mathjax in `yout-site/static/lib/mathjax`
 
-  postMetaInFooter = false   # contain author, lastMod, markdown link, license
+  postMetaInFooter = true   # contain author, lastMod, markdown link, license
   linkToMarkDown = false    # Only effective when hugo will output .md files.
-  contentCopyright = ''     # e.g. '<a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a>'
+  contentCopyright = '<a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a>'     # e.g. '<a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a>'
 
   changyanAppid = ""        # Changyan app id
   changyanAppkey = ""       # Changyan app key
