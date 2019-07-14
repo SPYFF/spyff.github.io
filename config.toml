@@ -15,9 +15,9 @@ pygmentsUseClasses = true
 pygmentsCodefencesGuessSyntax = true
 
 hasCJKLanguage = true     # has chinese/japanese/korean
-paginate = 5                                            
+paginate = 10                                            
 disqusShortname = ""      # disqus_shortname
-googleAnalytics = ""      # UA-XXXXXXXX-X
+googleAnalytics = "UA-104300360-1"      # UA-XXXXXXXX-X
 copyright = "Ferenc Fejes"            # default: author.name
 
 [author]                  # essential
