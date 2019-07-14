@@ -22,12 +22,12 @@ before_script:
   - sudo dpkg -i hugo_${HUGO_VERSION}_Linux-64bit.deb
 
 script:
-  - hugo -v
+  - hugo -v -t even
 
 deploy:
   provider: pages
   github_token: $GIT_TOKEN
-  skip_cleanup: false
+  skip_cleanup: true
   local_dir: public
   target_branch: master
   on:
