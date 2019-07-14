@@ -175,7 +175,7 @@ $ iperf3 -c 192.168.78.107
 ```
 on the notebook which is connected to the R7000 LAN. The IP address there is my PC's IP address. If everything works, You should see the sum of the two Wi-Fi bridges throughput. Check the video from my test environment below.
 
-[![IMAGE ALT TEXT](http://img.youtube.com/vi/1xQQuT9BGuI/0.jpg)](http://www.youtube.com/watch?v=1xQQuT9BGuI "Transparent MPTCP proxy")
+{{% youtube "1xQQuT9BGuI" %}}
 
 # Summary
 For more information from the project please check Freifunk blog posts linked below. This page is intended for my _Google Summer of Code_ project summary page. My contributions:
