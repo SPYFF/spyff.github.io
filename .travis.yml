@@ -2,11 +2,6 @@ language: go
 dist: xenial
 sudo: false
 
-branches:
-  only:
-  - master
-  - gh-pages
-
 addons:
   apt:
     packages:
@@ -29,7 +24,8 @@ deploy:
   provider: pages
   skip_cleanup: true
   local_dir: public
+  target_branch: master
   on:
-    branch: master
+    branch: gh-pages
 
 
