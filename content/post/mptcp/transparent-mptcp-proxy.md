@@ -1,5 +1,6 @@
 ---
 categories: ["mptcp"]
+tags: ["mptcp", "proxy", "linux", "wifi"]
 date: 2017-08-27T14:00:00Z
 summary: How to setup a transparent, site-to-site MPTCP proxy with LEDE. Detailed
   tutorial and description of my Google Summer of Code 2017 project.
