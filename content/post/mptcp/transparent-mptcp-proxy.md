@@ -8,6 +8,10 @@ aliases: [/mptcp/2017/08/27/transparent-mptcp-proxy/]
 slug: "mptcp"
 ---
 
+{{% admonition warning "This post is outdated" %}}
+The methods described in this blogpost might be outdated. I recommend to take a look into the OpenMPTCPRouter (https://www.openmptcprouter.com/) project for an up-to-date approach. If you want to reproduce the proxy described in this blogpost, please be really careful. Thanks!
+{{% /admonition %}}
+
 # Brief intro
 * **LEDE** (Linux Embedded Development Environment) is a fork of OpenWRT the well known Linux distro for routers.
 * **MPTCP** (MultiPath Transmission Control Protocol) is defined in RFC 6824. Designed to use multiple network interfaces (Ethernet, Wi-Fi, LTE, etc.) for a communication session.
