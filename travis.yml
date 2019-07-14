@@ -1,0 +1,30 @@
+language: go
+dist: xenial
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - python-pygments
+
+env:
+  - HUGO_VERSION=0.55.6
+
+install:
+  - rm -rf public || exit 0
+
+before_script:
+  - wget https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_Linux-64bit.deb
+  - sudo dpkg -i hugo_${HUGO_VERSION}_Linux-64bit.deb
+
+script:
+  - hugo -v
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  local_dir: public
+  on:
+    branch: master
+
+
