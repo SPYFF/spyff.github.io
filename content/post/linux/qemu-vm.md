@@ -1,0 +1,173 @@
+---
+categories: ["linux"]
+tags: ["linux", "vm", "qemu"]
+date: 2018-07-20T15:00:00Z
+summary: Few notes and command dump about creating QEMU virtual machine for testing various kernel features.
+title: QEMU virtual machine for kernel testing
+slug: "linux"
+---
+
+# Abstract
+Testing kernel on bare-metal machine is time-consuming. Boot failures, screwing up installed distro, slow restart cycles, etc. There is a very convenient method for booting up a freshly compiled kernel with QEMU. You can compile the kernel on your host machine, then simply slide-load that to a virtual machine with your favorite GNU/Linux distribution. In the following, I will show some commands, how to make an easy to use virtual test environment with QEMU and Ubuntu Server cloud image.
+
+# Preparations on the host machine
+
+My host machine running a Ubuntu 18.04 LTS GNU/Linux distribution with a `hwe-edge` kernel which is version 5.0 currently. For kernel compilation, we should have to install some additional packages:
+
+```
+sudo apt install git fakeroot build-essential ncurses-dev \
+     xz-utils libssl-dev bc bison flex libelf-dev
+```
+
+Also, for booting the virtual machine later, we should install the QEMU and some tools for later image preparations:
+
+```
+sudo apt install qemu-kvm libvirt-clients libvirt-daemon-system \
+     bridge-utils virt-manager cloud-utils
+```
+
+# Kernel compilation
+
+There are lots of ways to get the kernel source code, for example, clone a repository of it:
+
+```
+git clone --depth 1 https://kernel.googlesource.com/pub/scm/linux/kernel/git/davem/net-next.git
+```
+
+I use the **net-next** repository right now, but the process is similar to the stable mainline kernel too.
+
+## Kernel configuration
+
+The whole kernel compilation process depends on the `.config` file, which is located at the kernel source root directory (`net-next` in our case). However, this file did not exist by default, we have to make one. Because we compile it to QEMU-KVM, we don't need many device drivers and real hardware related options. The kernel contains a good default configuration for QEMU-KVM, so we can use that:
+
+```
+make x86_64_defconfig
+make kvmconfig
+make -j `nproc --all`
+```
+
+## Creating and applying config fragments
+
+This is okay for test if the kernel compiles and boot successfully, but what if we would like to test the full BPF featureset of the kernel. We have `menuconfig` of course, but searching all the BPF settings one-by-one is time-consuming and brings the possibility of skipping some accidentally. To overcome the problem, we will use **config fragments**. One way to create them is to cut out the required settings from `allyesconfig`, in our case the enabled BPF settings.
+
+```
+mv .config kvmconf_backup.config
+make allyesconfig
+grep BPF .config > bpf.config
+mv kvmconf_backup.config .config
+./scripts/kconfig/merge_config.sh -m .config bpf.config
+```
+
+In line **1** we make a backup from our original x86_64 kvmconfig, because we use that later. Then we make the `allyesconfig` in line **2**. This is a special built in configuration, which enable every kernel feature, including modules and drivers. That one takes forever to compile, so we just cut the BPF part (BPF config fragment) and of that in the line **3**. In line **4** we restore the KVM config backup and apply the BPF fragment for that (line **5**). The output of the method is a lightweight config for virtual machine usage, but with all the BPF features enabled.
+
+Now the kernel is ready for compilation, use the `make -j9` command for run on 9 threads.
+
+# Booting the virtual machine
+
+I use Ubuntu cloud image as the basis of my virtual machine. Most of the core packages still included in this one, but also designed to run in a virtual environment, so the desktop manager and many other bloats not included.
+
+```
+wget https://cloud-images.ubuntu.com/eoan/current/eoan-server-cloudimg-amd64.img
+``` 
+
+Good practice to keep this image untouched and make an overlay image on top of that for later usage. Writing files in the overlay image is persistent but it does not affect the base image. So if we mess up something very badly, we still have the original image and use that without further problems. We can also make overlay image over overlay images, so if we installed and configured the guest system, we can make an overlay image on top of that and if some bad thing happens, we can revert to the last stable version. Let's create the overlay image:
+
+```
+qemu-img create -f qcow2 -b eoan-server-cloudimg-amd64.img ubuntu.img
+```
+
+This Ubuntu image is untouched, we have to put some configuration into it. `cloud-init` is a method for that. First, we have to create a cloud config file (with very simple yaml syntax) without identity details, hostname, ssh public key, etc. Save this file as `init.yaml` for example:
+
+```
+#cloud-config
+hostname: ubu 
+users:
+  - name: myusername
+    ssh-authorized-keys:
+      - ssh-rsa AAAAB3Nz[...]34twdf/ myusername@pc 
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    groups: sudo
+    shell: /bin/bash
+```
+
+Now let's build a cloud init image from that file:
+
+```
+cloud-localds init.img init.yaml
+```
+
+This `init.img` also mounted to the virtual machine, and the preinstalled `cloud-init` tool in the Ubuntu image will take a look into it and configure the required parameters according to that.
+Now we should start the virtual machine using our own kernel:
+
+```
+sudo qemu-system-x86_64 \
+-kernel net-next/arch/x86/boot/bzImage \
+-append "root=/dev/sda1 single console=ttyS0 systemd.unit=graphical.target" \
+-hda ubuntu.img \
+-hdb init.img \
+-m 2048 \
+--nographic \
+--enable-kvm \
+-netdev user,id=net0,hostfwd=tcp::2222-:22 -device e1000,netdev=net0 \
+-fsdev local,id=fs1,path=/home/spyff/folder_to_share,security_model=none \
+-device virtio-9p-pci,fsdev=fs1,mount_tag=shared_folder
+```
+
+* line 1: staring the QEMU with our host architecture
+* line 2: sideload the kernel we compiled before for the virtual machine, which will use that instead of his default kernel
+* line 3: the overlay image of our untouched Ubuntu cloud image as the rootfs
+* line 4: the initialization image for the cloud-init
+* line 5: two gigabytes RAM for the VM
+* line 6-7: speed up and emulation optimizations
+* line 8: forward the virtual machine's SSH port to the host machine's 2222 TCP port
+* line 9-10: not necessary, a shared folder between the guest and the host
+
+# Configuration of the guest
+
+To access the guest over SSH we should use the 2222 port of the host:
+
+```
+ssh 0 -p2222
+```
+
+Now for folder sharing, we have to put the following line into the end of the `/etc/fstab`. In this example, it will mount the `/home/spyff/folder_to_share` from the host into the guest's `/root/shared` folder:
+
+```
+shared_folder /root/shared 9p trans=virtio 0 0
+```
+
+## Extending the disk space of the guest
+
+By default, the cloud image configured for 2 gigabytes of additional space. This is a virtual limit, so we can extend it for our needs. The following command extend the image (the hard disk in the virtual machine) with 10 gigabytes.
+
+```
+qemu-img resize ubuntu.img +10G
+```
+
+The `cloud-init` will automatically grow the rootfs to the end of the additional space in next boot. However, we can do that manually if our cloud-init is too old for that:
+
+```
+sudo apt install cloud-guest-utils
+growpart /dev/sda 1
+```
+
+or if that fails, we still able to do that with `parted`
+
+```
+parted
+
+(parted) print                                                            
+Model: ATA QEMU HARDDISK (scsi)
+Disk /dev/sda: 13.1GB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+Disk Flags: 
+
+Number  Start   End     Size    File system  Name  Flags
+14      1049kB  5243kB  4194kB                     bios_grub
+15      5243kB  116MB   111MB   fat32              boot, esp
+ 1      116MB   13.0GB  12.9GB  ext4
+
+(parted) resizepart 1
+End?  [13.0GB]? 13.0GB
+```
