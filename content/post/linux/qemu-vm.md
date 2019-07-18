@@ -171,3 +171,25 @@ Number  Start   End     Size    File system  Name  Flags
 (parted) resizepart 1
 End?  [13.0GB]? 13.0GB
 ```
+
+# Miscellaneous
+
+## Installing kernel headers
+
+The official and most reliable documentation available here: [https://www.kernel.org/doc/Documentation/kbuild/headers_install.txt](https://www.kernel.org/doc/Documentation/kbuild/headers_install.txt)
+In our case this looks like the following:
+
+```
+make headers_install INSTALL_HDR_PATH=/usr
+```
+
+## Installing linux tools
+
+For installing `perf` and `bpftool` (including `libbpf`) do the following:
+
+```
+make -C tools/ perf_install prefix=/usr/
+make -C tools/ bpf_install
+ldconfig
+```
+
