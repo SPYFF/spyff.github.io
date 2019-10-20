@@ -194,3 +194,63 @@ make -C tools/ bpf_install
 ldconfig
 ```
 
+## Kernel debugging with GDB (with Ubuntu 19.10 cloud-image)
+
+Start the machine with the command below, where the `-s` open up the QEMU's GDB stub socket at the TCP 1234 port:
+
+```
+sudo qemu-system-x86_64 \
+-hda ubuntu.img \
+-hdb init.img \
+-m 2048 \
+--nographic \
+--enable-kvm \
+-nic user,hostfwd=tcp::2222-:22 \
+-s 
+```
+
+To begin with, we have to get the debug symbols for the kernel. This package not available from the default repositories, we need the debug repositories for that:
+
+```
+echo "deb http://ddebs.ubuntu.com $(lsb_release -cs) main restricted universe multiverse
+deb http://ddebs.ubuntu.com $(lsb_release -cs)-updates main restricted universe multiverse
+deb http://ddebs.ubuntu.com $(lsb_release -cs)-proposed main restricted universe multiverse" | \
+sudo tee -a /etc/apt/sources.list.d/ddebs.list
+
+sudo apt install ubuntu-dbgsym-keyring
+sudo apt update
+```
+
+The debug repository contains the required debug packages, select the matching one for our current kernel
+
+```
+sudo apt install linux-image-$(uname -r)-dbgsym
+```
+
+Then copy the kernel file to the host machine in order to make it available for GDB to search symbols in it. The required file is `/usr/lib/debug/boot/vmlinux-5.3.0-18-generic` in this case.
+
+By default, kernel address space layout randmization (KASLR and KAISER) is enabled. This feautire prevent GDB to match the addresses in the loaded kernel with the ones defined in the debug file. Edit the `/etc/default/grub.d/50-cloudimg-settings.cfg` file and append `nokaiser nokaslr` to the kernel command line arguments like below:
+
+```
+GRUB_CMDLINE_LINUX_DEFAULT="console=tty1 console=ttyS0 nokaiser nokaslr"
+```
+
+Then update the GRUB and reboot the guest machine:
+
+```
+sudo update-grub
+reboot
+```
+
+Now on the host machine, start GDB and attach to the remote target
+
+```
+gdb ./vmlinux-5.3.0-18-generic
+target remote :1234
+```
+
+Now the symbols and breakpoints should work but we still unable to see the source lines. For that, download the source files for our kernel `sudo apt install linux-source` then copy the downloaded archive into the host machine `/usr/src/linux-source-5.3.0/linux-source-5.3.0.tar.bz2`. Now we have to tell where the GDB can find the source files. Untar the sources to a directory and set it in the GDB: the original path told by the GDB.
+
+```
+set substitute-path /build/linux-IewOGS/linux-5.3.0/ /home/user/linux-source-5.3.0
+```
