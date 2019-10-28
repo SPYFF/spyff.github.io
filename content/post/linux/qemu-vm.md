@@ -254,3 +254,4 @@ Now the symbols and breakpoints should work but we still unable to see the sourc
 ```
 set substitute-path /build/linux-IewOGS/linux-5.3.0/ /home/user/linux-source-5.3.0
 ```
+For kernel module debugging, I found this excellent blogpost: [https://medium.com/@navaneethrvce/debugging-your-linux-kernel-module](https://medium.com/@navaneethrvce/debugging-your-linux-kernel-module-21bf8a8728ba)
