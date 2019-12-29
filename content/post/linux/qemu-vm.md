@@ -90,7 +90,7 @@ users:
     shell: /bin/bash
 ```
 
-Now let's build a cloud init image from that file:
+The `#cloud-config` comment on the top is mandatory for cloud-init. Now let's build a cloud init image from that file:
 
 ```
 cloud-localds init.img init.yaml
