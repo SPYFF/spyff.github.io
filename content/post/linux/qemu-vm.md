@@ -108,7 +108,7 @@ sudo qemu-system-x86_64 \
 -m 2048 \
 --nographic \
 --enable-kvm \
--netdev user,id=net0,hostfwd=tcp::2222-:22 -device e1000,netdev=net0 \
+-netdev user,id=net0,hostfwd=tcp::2222-:22 -device virtio-net-pci,netdev=net0 \
 #-nic user,hostfwd=tcp::2222-:22 \
 -fsdev local,id=fs1,path=/home/spyff/folder_to_share,security_model=none \
 -device virtio-9p-pci,fsdev=fs1,mount_tag=shared_folder
