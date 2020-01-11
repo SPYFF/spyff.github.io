@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>vm on Ferenc Fejes technical blog</title>
+    <link>/tags/vm/</link>
+    <description>Recent content in vm on Ferenc Fejes technical blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Ferenc Fejes</copyright>
+    <lastBuildDate>Fri, 20 Jul 2018 15:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/vm/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>QEMU virtual machine for kernel testing</title>
+      <link>/linux/2018/07/20/qemu-vm/</link>
+      <pubDate>Fri, 20 Jul 2018 15:00:00 +0000</pubDate>
+      
+      <guid>/linux/2018/07/20/qemu-vm/</guid>
+      <description>Few notes and command dump about creating QEMU virtual machine for testing various kernel features.</description>
+    </item>
+    
+  </channel>
+</rss>
