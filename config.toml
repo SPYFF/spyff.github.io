@@ -216,6 +216,12 @@ copyright = "Ferenc Fejes"            # default: author.name
 #  taxonomy = ["HTML", "RSS"]
 #  taxonomyTerm = ["HTML"]
 
+[markup]
+  [markup.tableOfContents]
+    startLevel = 1
+  [markup.goldmark.renderer]
+    unsafe = true
+
 [permalinks]
   post = "/:slug/:year/:month/:day/:filename/"
 

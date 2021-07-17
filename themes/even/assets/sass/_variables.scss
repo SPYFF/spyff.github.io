@@ -2,6 +2,8 @@
 // Variables
 // ==============================
 
+@import url(https://fonts.googleapis.com/css?family=Merriweather);
+
 // ========== Theme Color ========== //
 // Config here to change theme color
 // Default | Mint Green | Cobalt Blue | Hot Pink | Dark Violet
@@ -55,10 +57,10 @@ $global-container-padding: 0 20px !default;
 $global-lineheight: 1.5 !default;
 
 // Font family of the site.
-$global-font-family: 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif !default;
+$global-font-family: Merriweather, 'Helvetica Neue', Arial, serif !default;
 
 // Serif font family of the site.
-$global-serif-font-family: Athelas, STHeiti, Microsoft Yahei, serif !default;
+$global-serif-font-family: Merriweather, Athelas, STHeiti, Microsoft Yahei, serif !default;
 
 // Background color of the site.
 $global-background: $white !default;
@@ -78,25 +80,12 @@ $global-headings: (
 // Padding of the site header.
 $header-padding: 20px 20px !default;
 
-// Font family: Chancery
-@font-face {
-  font-family: 'Chancery';
-  src: url('../fonts/chancery/apple-chancery-webfont.eot');
-  src: local('Apple Chancery'), url('../fonts/chancery/apple-chancery-webfont.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/chancery/apple-chancery-webfont.woff2') format('woff2'),
-  url('../fonts/chancery/apple-chancery-webfont.woff') format('woff'),
-  url('../fonts/chancery/apple-chancery-webfont.ttf') format('truetype'),
-  url('../fonts/chancery/apple-chancery-webfont.svg#apple-chancery') format('svg');
-  font-weight: lighter;
-  font-style: normal;
-  font-display: swap;
-}
 
 // Font size of the logo.
 $logo-font-size: 48px !default;
 
 // Font family of the logo.
-$logo-font-family: 'Chancery', cursive, LiSu, sans-serif !default;
+$logo-font-family: 'Merriweather', cursive, LiSu, sans-serif !default;
 
 // Margin of menu item.
 $menu-item-margin-left: 10px !default;
