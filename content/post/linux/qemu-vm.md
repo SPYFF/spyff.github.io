@@ -101,13 +101,13 @@ Now we should start the virtual machine using our own kernel:
 
 ```
 sudo qemu-system-x86_64 \
+-machine accel=kvm,type=q35 \
 -kernel net-next/arch/x86/boot/bzImage \
 -append "root=/dev/sda1 single console=ttyS0 systemd.unit=graphical.target" \
 -hda ubuntu.img \
 -hdb init.img \
 -m 2048 \
 --nographic \
---enable-kvm \
 -netdev user,id=net0,hostfwd=tcp::2222-:22 -device virtio-net-pci,netdev=net0 \
 #-nic user,hostfwd=tcp::2222-:22 \
 -fsdev local,id=fs1,path=/home/spyff/folder_to_share,security_model=none \
@@ -200,11 +200,11 @@ Start the machine with the command below, where the `-s` open up the QEMU's GDB 
 
 ```
 sudo qemu-system-x86_64 \
+-machine accel=kvm,type=q35
 -hda ubuntu.img \
 -hdb init.img \
 -m 2048 \
 --nographic \
---enable-kvm \
 -nic user,hostfwd=tcp::2222-:22 \
 -s 
 ```
