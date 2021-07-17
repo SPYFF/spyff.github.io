@@ -1,1 +1,30 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>wifi on Ferenc Fejes technical blog</title><link>/tags/wifi/</link><description>Recent content in wifi on Ferenc Fejes technical blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><copyright>Ferenc Fejes</copyright><lastBuildDate>Sat, 21 Oct 2017 15:00:00 +0000</lastBuildDate><atom:link href="/tags/wifi/index.xml" rel="self" type="application/rss+xml"/><item><title>LEDE MPTCP with kernel 4.9</title><link>/mptcp/2017/10/21/lede-mptcp-kernel-4.9/</link><pubDate>Sat, 21 Oct 2017 15:00:00 +0000</pubDate><guid>/mptcp/2017/10/21/lede-mptcp-kernel-4.9/</guid><description>Just added master branch with the actual (currently unstable but working) MPTCP implementation.</description></item><item><title>Multipath Wi-Fi bridging with transparent MPTCP proxy on LEDE</title><link>/mptcp/2017/08/27/transparent-mptcp-proxy/</link><pubDate>Sun, 27 Aug 2017 14:00:00 +0000</pubDate><guid>/mptcp/2017/08/27/transparent-mptcp-proxy/</guid><description>How to setup a transparent, site-to-site MPTCP proxy with LEDE. Detailed tutorial and description of my Google Summer of Code 2017 project.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>wifi on Ferenc Fejes technical blog</title>
+    <link>/tags/wifi/</link>
+    <description>Recent content in wifi on Ferenc Fejes technical blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Ferenc Fejes</copyright>
+    <lastBuildDate>Sat, 21 Oct 2017 15:00:00 +0000</lastBuildDate><atom:link href="/tags/wifi/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>LEDE MPTCP with kernel 4.9</title>
+      <link>/mptcp/2017/10/21/lede-mptcp-kernel-4.9/</link>
+      <pubDate>Sat, 21 Oct 2017 15:00:00 +0000</pubDate>
+      
+      <guid>/mptcp/2017/10/21/lede-mptcp-kernel-4.9/</guid>
+      <description>Just added master branch with the actual (currently unstable but working) MPTCP implementation.</description>
+    </item>
+    
+    <item>
+      <title>Multipath Wi-Fi bridging with transparent MPTCP proxy on LEDE</title>
+      <link>/mptcp/2017/08/27/transparent-mptcp-proxy/</link>
+      <pubDate>Sun, 27 Aug 2017 14:00:00 +0000</pubDate>
+      
+      <guid>/mptcp/2017/08/27/transparent-mptcp-proxy/</guid>
+      <description>How to setup a transparent, site-to-site MPTCP proxy with LEDE. Detailed tutorial and description of my Google Summer of Code 2017 project.</description>
+    </item>
+    
+  </channel>
+</rss>

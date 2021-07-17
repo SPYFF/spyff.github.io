@@ -1,1 +1,93 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Tags on Ferenc Fejes technical blog</title><link>/tags/</link><description>Recent content in Tags on Ferenc Fejes technical blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><copyright>Ferenc Fejes</copyright><lastBuildDate>Sun, 14 Jul 2019 15:00:00 +0000</lastBuildDate><atom:link href="/tags/index.xml" rel="self" type="application/rss+xml"/><item><title>iperf</title><link>/tags/iperf/</link><pubDate>Sun, 14 Jul 2019 15:00:00 +0000</pubDate><guid>/tags/iperf/</guid><description/></item><item><title>measurement</title><link>/tags/measurement/</link><pubDate>Sun, 14 Jul 2019 15:00:00 +0000</pubDate><guid>/tags/measurement/</guid><description/></item><item><title>tcp</title><link>/tags/tcp/</link><pubDate>Sun, 14 Jul 2019 15:00:00 +0000</pubDate><guid>/tags/tcp/</guid><description/></item><item><title>linux</title><link>/tags/linux/</link><pubDate>Fri, 20 Jul 2018 15:00:00 +0000</pubDate><guid>/tags/linux/</guid><description/></item><item><title>qemu</title><link>/tags/qemu/</link><pubDate>Fri, 20 Jul 2018 15:00:00 +0000</pubDate><guid>/tags/qemu/</guid><description/></item><item><title>vm</title><link>/tags/vm/</link><pubDate>Fri, 20 Jul 2018 15:00:00 +0000</pubDate><guid>/tags/vm/</guid><description/></item><item><title>mptcp</title><link>/tags/mptcp/</link><pubDate>Sat, 21 Oct 2017 15:00:00 +0000</pubDate><guid>/tags/mptcp/</guid><description/></item><item><title>wifi</title><link>/tags/wifi/</link><pubDate>Sat, 21 Oct 2017 15:00:00 +0000</pubDate><guid>/tags/wifi/</guid><description/></item><item><title>proxy</title><link>/tags/proxy/</link><pubDate>Sun, 27 Aug 2017 14:00:00 +0000</pubDate><guid>/tags/proxy/</guid><description/></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on Ferenc Fejes technical blog</title>
+    <link>/tags/</link>
+    <description>Recent content in Tags on Ferenc Fejes technical blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Ferenc Fejes</copyright>
+    <lastBuildDate>Sun, 14 Jul 2019 15:00:00 +0000</lastBuildDate><atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>iperf</title>
+      <link>/tags/iperf/</link>
+      <pubDate>Sun, 14 Jul 2019 15:00:00 +0000</pubDate>
+      
+      <guid>/tags/iperf/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>measurement</title>
+      <link>/tags/measurement/</link>
+      <pubDate>Sun, 14 Jul 2019 15:00:00 +0000</pubDate>
+      
+      <guid>/tags/measurement/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>tcp</title>
+      <link>/tags/tcp/</link>
+      <pubDate>Sun, 14 Jul 2019 15:00:00 +0000</pubDate>
+      
+      <guid>/tags/tcp/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>linux</title>
+      <link>/tags/linux/</link>
+      <pubDate>Fri, 20 Jul 2018 15:00:00 +0000</pubDate>
+      
+      <guid>/tags/linux/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>qemu</title>
+      <link>/tags/qemu/</link>
+      <pubDate>Fri, 20 Jul 2018 15:00:00 +0000</pubDate>
+      
+      <guid>/tags/qemu/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>vm</title>
+      <link>/tags/vm/</link>
+      <pubDate>Fri, 20 Jul 2018 15:00:00 +0000</pubDate>
+      
+      <guid>/tags/vm/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>mptcp</title>
+      <link>/tags/mptcp/</link>
+      <pubDate>Sat, 21 Oct 2017 15:00:00 +0000</pubDate>
+      
+      <guid>/tags/mptcp/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>wifi</title>
+      <link>/tags/wifi/</link>
+      <pubDate>Sat, 21 Oct 2017 15:00:00 +0000</pubDate>
+      
+      <guid>/tags/wifi/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>proxy</title>
+      <link>/tags/proxy/</link>
+      <pubDate>Sun, 27 Aug 2017 14:00:00 +0000</pubDate>
+      
+      <guid>/tags/proxy/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
