@@ -200,7 +200,7 @@ Start the machine with the command below, where the `-s` open up the QEMU's GDB 
 
 ```
 sudo qemu-system-x86_64 \
--machine accel=kvm,type=q35
+-machine accel=kvm,type=q35 \
 -hda ubuntu.img \
 -hdb init.img \
 -m 2048 \
