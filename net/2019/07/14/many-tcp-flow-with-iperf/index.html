@@ -44,12 +44,12 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="/net/2019/07/14/many-tcp-flow-with-iperf/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2019-07-14T15:00:00+00:00" />
-<meta property="article:modified_time" content="2021-07-17T20:03:24+02:00" />
+<meta property="article:modified_time" content="2025-04-04T15:30:11+02:00" />
 
 <meta itemprop="name" content="Thousand TCP flow with iperf">
 <meta itemprop="description" content="How to do correct iperf measurements with many TCP flows on GNU/Linux test environment"><meta itemprop="datePublished" content="2019-07-14T15:00:00+00:00" />
-<meta itemprop="dateModified" content="2021-07-17T20:03:24+02:00" />
-<meta itemprop="wordCount" content="929">
+<meta itemprop="dateModified" content="2025-04-04T15:30:11+02:00" />
+<meta itemprop="wordCount" content="950">
 <meta itemprop="keywords" content="tcp,measurement,iperf," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Thousand TCP flow with iperf"/>
 <meta name="twitter:description" content="How to do correct iperf measurements with many TCP flows on GNU/Linux test environment"/>
@@ -132,7 +132,7 @@
         <div class="post-category">
             <a href="/categories/net/"> net </a>
             </div>
-          <span class="more-meta"> 929 words </span>
+          <span class="more-meta"> 950 words </span>
           <span class="more-meta"> 5 mins read </span>
         
       </div>
@@ -153,7 +153,9 @@
   </div>
 </div>
     <div class="post-content">
-      <h1 id="abstract">Abstract</h1>
+      <p><strong>Update 2025:</strong> Contrary to the original post, iperf3 gained multi-threading support (see <a href="https://github.com/esnet/iperf/pull/1591">PR</a>) in
+version 3.16 (released at 2023. 11. 30.)</p>
+<h1 id="abstract">Abstract</h1>
 <p>The classic <strong>iperf</strong> and lately the <strong>iperf3</strong> widely used for various network performance measurements. The original iperf written in C++ while the iperf3 written in C, but thats not the only difference, from performance measurement standpoint there is a big one: iperf3 is single threaded and iperf is multi-threaded. This is quite important when it comes to multiple flow TCP measurements. In many cases, iperf3 fails to utilize the whole network capacity due to CPU bottleneck: each TCP flow share one thread and therefore one CPU core. In contrast, iperf create a new thread for every TCP flow.
 Nevertheless handling many TCP flows is still tricky even with the multi-threaded iperf. In this blogpost, we will investigate the pitfalls of many flow measurements.</p>
 <h1 id="the-naive-approach">The naive approach</h1>
@@ -309,8 +311,8 @@ net.core.somaxconn = 65536
   <p class="copyright-item">
     <span class="item-title">LastMod</span>
     <span class="item-content">
-        2021-07-17
-        <a href="https://github.com/SPYFF/spyff.github.io//commit/2e0ecd6f0199a0811178175d698deb34d70d9477" title="update theme">(2e0ecd6)</a>
+        2025-04-04
+        <a href="https://github.com/SPYFF/spyff.github.io//commit/a0e4203b718fe3004061633e76cc99a49b7e93ee" title="iperf: Add note about iperf3 multithread support">(a0e4203)</a>
     </span>
   </p>
   
@@ -369,7 +371,7 @@ net.core.somaxconn = 65536
   <span class="copyright-year">
     &copy; 
     2017 - 
-    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Ferenc Fejes</span>
+    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span>Ferenc Fejes</span>
   </span>
 </div>
 
