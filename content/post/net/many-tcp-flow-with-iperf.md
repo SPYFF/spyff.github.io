@@ -7,6 +7,9 @@ title: Thousand TCP flow with iperf
 slug: "net"
 ---
 
+__Update 2025:__ Contrary to the original post, iperf3 gained multi-threading support (see [PR](https://github.com/esnet/iperf/pull/1591)) in
+version 3.16 (released at 2023. 11. 30.)
+
 # Abstract
 
 The classic **iperf** and lately the **iperf3** widely used for various network performance measurements. The original iperf written in C++ while the iperf3 written in C, but thats not the only difference, from performance measurement standpoint there is a big one: iperf3 is single threaded and iperf is multi-threaded. This is quite important when it comes to multiple flow TCP measurements. In many cases, iperf3 fails to utilize the whole network capacity due to CPU bottleneck: each TCP flow share one thread and therefore one CPU core. In contrast, iperf create a new thread for every TCP flow. 
