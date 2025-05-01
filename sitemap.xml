@@ -1,144 +1,41 @@
-<?xml-stylesheet type="text/xsl" href="sitemap.xsl"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  
-  <url>
-    <loc>/categories/</loc>
-    <lastmod>2025-04-04T15:30:11+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>/</loc>
-    <lastmod>2025-04-04T15:30:11+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
+    <lastmod>2019-07-14T15:00:00+00:00</lastmod>
+  </url><url>
     <loc>/tags/iperf/</loc>
-    <lastmod>2025-04-04T15:30:11+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
+    <lastmod>2019-07-14T15:00:00+00:00</lastmod>
+  </url><url>
     <loc>/tags/measurement/</loc>
-    <lastmod>2025-04-04T15:30:11+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>/categories/net/</loc>
-    <lastmod>2025-04-04T15:30:11+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>/post/</loc>
-    <lastmod>2025-04-04T15:30:11+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
+    <lastmod>2019-07-14T15:00:00+00:00</lastmod>
+  </url><url>
+    <loc>/posts/</loc>
+    <lastmod>2019-07-14T15:00:00+00:00</lastmod>
+  </url><url>
     <loc>/tags/</loc>
-    <lastmod>2025-04-04T15:30:11+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
+    <lastmod>2019-07-14T15:00:00+00:00</lastmod>
+  </url><url>
     <loc>/tags/tcp/</loc>
-    <lastmod>2025-04-04T15:30:11+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>/net/2019/07/14/many-tcp-flow-with-iperf/</loc>
-    <lastmod>2025-04-04T15:30:11+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
+    <lastmod>2019-07-14T15:00:00+00:00</lastmod>
+  </url><url>
+    <loc>/posts/net/scaling-iperf/</loc>
+    <lastmod>2019-07-14T15:00:00+00:00</lastmod>
+  </url><url>
     <loc>/tags/linux/</loc>
-    <lastmod>2021-07-17T20:03:24+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>/categories/linux/</loc>
-    <lastmod>2021-07-17T20:03:24+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
+    <lastmod>2018-07-20T15:00:00+00:00</lastmod>
+  </url><url>
     <loc>/tags/qemu/</loc>
-    <lastmod>2021-07-17T20:03:24+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>/linux/2018/07/20/qemu-vm/</loc>
-    <lastmod>2021-07-17T20:03:24+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
+    <lastmod>2018-07-20T15:00:00+00:00</lastmod>
+  </url><url>
+    <loc>/posts/linux/qemu-brief/</loc>
+    <lastmod>2018-07-20T15:00:00+00:00</lastmod>
+  </url><url>
     <loc>/tags/vm/</loc>
-    <lastmod>2021-07-17T20:03:24+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
+    <lastmod>2018-07-20T15:00:00+00:00</lastmod>
+  </url><url>
+    <loc>/posts/mptcp/transparent-mptcp-proxy/</loc>
+    <lastmod>2017-08-27T14:00:00+00:00</lastmod>
   </url>
-  
-  <url>
-    <loc>/mptcp/2017/10/21/lede-mptcp-kernel-4.9/</loc>
-    <lastmod>2021-07-17T20:03:24+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>/tags/mptcp/</loc>
-    <lastmod>2021-07-17T20:03:24+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>/categories/mptcp/</loc>
-    <lastmod>2021-07-17T20:03:24+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>/tags/wifi/</loc>
-    <lastmod>2021-07-17T20:03:24+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>/mptcp/2017/08/27/transparent-mptcp-proxy/</loc>
-    <lastmod>2021-07-17T20:03:24+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>/tags/proxy/</loc>
-    <lastmod>2021-07-17T20:03:24+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
 </urlset>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en-us"
+  dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+<link rel="icon" type="image/ico" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<meta name="description" content=""/>
+
+
+
+<title>
+    
+    Thousand TCP flows with iperf | Ferenc Fejes technical blog
+    
+</title>
+
+<link rel="canonical" href="/posts/net/scaling-iperf/"/>
+
+<meta property="og:url" content="/posts/net/scaling-iperf/">
+  <meta property="og:site_name" content="Ferenc Fejes technical blog">
+  <meta property="og:title" content="Thousand TCP flows with iperf">
+  <meta property="og:description" content="How to do correct iperf measurements with many TCP flows on GNU/Linux test environment">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2019-07-14T15:00:00+00:00">
+    <meta property="article:modified_time" content="2019-07-14T15:00:00+00:00">
+    <meta property="article:tag" content="Tcp">
+    <meta property="article:tag" content="Measurement">
+    <meta property="article:tag" content="Iperf">
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/assets/combined.min.ba8580b62aaae86e67e95977ac83a33f1d4e6c316fae799ae5bbe1b621fcc1a7.css" media="all">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+</head>
+
+
+
+
+
+
+
+<body class="auto">
+
+  <div class="content">
+    <header>
+      
+
+<div class="header">
+
+    
+
+</div>
+
+    </header>
+
+    <main class="main">
+      
+
+
+
+
+<div class="breadcrumbs"><a href="/">Home</a><span class="breadcrumbs-separator">/</span><a href="/posts/">Posts</a><span class="breadcrumbs-separator">/</span>
+        <a href="/posts/net/scaling-iperf/">Thousand TCP flows with iperf</a></div>
+
+
+<div >
+  <article>
+    <header class="single-intro-container">
+        
+        <h1 class="single-title">Thousand TCP flows with iperf</h1>
+        <p class="single-summary">How to do correct iperf measurements with many TCP flows on GNU/Linux test environment</p>
+    
+        <p class="single-readtime">
+          <time datetime="2019-07-14T15:00:00&#43;00:00">July 14, 2019</time>
+        </p>
+    </header>
+    
+    <div class="single-content">
+      <p><strong>Update 2025:</strong> Contrary to the original post, iperf3 gained multi-threading support (see <a href="https://github.com/esnet/iperf/pull/1591">PR</a>) in
+version 3.16 (released at 2023. 11. 30.)</p>
+<h1 class="heading" id="abstract">
+  Abstract
+  <a class="anchor" href="#abstract">#</a>
+</h1>
+<p>The classic <strong>iperf</strong> and lately the <strong>iperf3</strong> widely used for various network performance measurements.
+The original iperf written in C++ while the iperf3 written in C, but thats not the only difference,
+from performance measurement standpoint there is a big one:
+iperf3 is single threaded and iperf is multi-threaded.
+This is quite important when it comes to multiple flow TCP measurements.
+In many cases, iperf3 fails to utilize the whole network capacity due to CPU bottleneck:
+each TCP flow share one thread and therefore one CPU core.
+In contrast, iperf create a new thread for every TCP flow.
+Nevertheless handling many TCP flows is still tricky even with the multi-threaded iperf.
+In this post, we will investigate the pitfalls of many flow measurements.</p>
+<h1 class="heading" id="the-naive-approach">
+  The naive approach
+  <a class="anchor" href="#the-naive-approach">#</a>
+</h1>
+<p>First, we have to install iperf. In my Ubuntu 18.04 environment, this looks like the following.</p>
+<pre tabindex="0"><code>$ sudo apt install iperf
+</code></pre><p>To verify the operation, we can test the TCP performance on loopback.
+We need to start an iperf server and client in separated terminal sessions:</p>
+<pre tabindex="0"><code>$ iperf -s #server
+</code></pre><p>Then the client:</p>
+<pre tabindex="0"><code>$ iperf -c 0
+</code></pre><p>I got the following output from the client in my notebook:</p>
+<pre tabindex="0"><code>spyff@hp:~$ iperf -c 0
+------------------------------------------------------------
+Client connecting to 0, TCP port 5001
+TCP window size: 2.50 MByte (default)
+------------------------------------------------------------
+[  3] local 127.0.0.1 port 40232 connected with 127.0.0.1 port 5001
+[ ID] Interval       Transfer     Bandwidth
+[  3]  0.0-10.0 sec  45.1 GBytes  38.8 Gbits/sec
+</code></pre><p>That was a single TCP flow measurement.
+We can repeat the test with 2 flows, just pass the <code>-P 2</code> parameter to the client iperf:</p>
+<pre tabindex="0"><code>spyff@hp:~$ iperf -c 0 -P 2
+------------------------------------------------------------
+Client connecting to 0, TCP port 5001
+TCP window size: 2.50 MByte (default)
+------------------------------------------------------------
+[  4] local 127.0.0.1 port 40258 connected with 127.0.0.1 port 5001
+[  3] local 127.0.0.1 port 40256 connected with 127.0.0.1 port 5001
+[ ID] Interval       Transfer     Bandwidth
+[  4]  0.0-10.0 sec  33.6 GBytes  28.8 Gbits/sec
+[  3]  0.0-10.0 sec  34.1 GBytes  29.3 Gbits/sec
+[SUM]  0.0-10.0 sec  67.7 GBytes  58.1 Gbits/sec
+</code></pre><h1 class="heading" id="the-problem-of-small-backlog">
+  The problem of small backlog
+  <a class="anchor" href="#the-problem-of-small-backlog">#</a>
+</h1>
+<p>Unfortunately, this is not a very scalable approach, if we try it with 1000 flows it will fail.
+In my case, the iperf trying to spawn threads but that happens very slowly and some flow even
+fails with the following error: <code>write failed: Connection reset by peer</code>.
+Unfortunately that&rsquo;s not a very helpful error message, but it means that the remote peer got
+too many incoming connections which fills his listener TCP socket&rsquo;s backlog queue full.
+When the backlog is full, the kernel refuses to accept new incoming TCP connections so send
+TCP reset back to the iperf client.
+But at the same time, the backlog also processed by the kernel, so some new TCP flow will
+succeed to connect because of the liberated places in the backlog queue.
+To check how big the listener&rsquo;s backlog, we can use the <code>perf trace</code> utility.
+The <code>perf trace</code> can monitor the system calls used by iperf, so we have to
+monitor the <code>listen</code> system call of the iperf server, and check the length of the backlog:</p>
+<pre tabindex="0"><code>spyff@hp:~$ sudo perf trace -e listen
+     0.000 ( 0.025 ms): iperf/13104 listen(fd: 3&lt;socket:[379613]&gt;, backlog: 2147483647)  = 0
+</code></pre><p>In my case the backlog is big enough (<code>MAX_INT</code>), because I use the iperf version <code>2.0.10</code>.
+But in older version, the backlog was set to <code>5</code> which is too small for many connections.
+So there is another limit somewhere which prevent us from our successful measurements:
+the <code>SOMAXCONN</code> sysctl value.
+This is set to <code>128</code> by default. We can increase it to <code>65536</code>:</p>
+<pre tabindex="0"><code>spyff@hp:~$ sysctl net.core.somaxconn
+net.core.somaxconn = 128
+spyff@hp:~$ 
+spyff@hp:~$ sudo sysctl -w net.core.somaxconn=65536
+net.core.somaxconn = 65536
+</code></pre><p>Now the <code>write failed: Connection reset by peer</code> error should be gone.</p>
+<h1 class="heading" id="iperf-fails-to-report-the-aggregated-throughput">
+  iperf fails to report the aggregated throughput
+  <a class="anchor" href="#iperf-fails-to-report-the-aggregated-throughput">#</a>
+</h1>
+<p>So far so good, but there is a small annoying bug still there.
+With <code>-P 100</code> we can see the aggregated throughput in the last row <code>[SUM]</code> at the end of the measurement:</p>
+<pre tabindex="0"><code>...
+[ 44]  0.0-10.2 sec   726 MBytes   595 Mbits/sec
+[ 43]  0.0-10.1 sec   621 MBytes   516 Mbits/sec
+[ 47]  0.0-10.1 sec   597 MBytes   495 Mbits/sec
+[ 32]  0.0-10.1 sec   767 MBytes   636 Mbits/sec
+[ 58]  0.0-10.2 sec   333 MBytes   273 Mbits/sec
+[SUM]  0.0-10.2 sec  49.2 GBytes  41.3 Gbits/sec
+</code></pre><p>However, this row disappearing at <code>-P 1000</code> or to be more precise, at <code>-P 128</code>.
+This is really suspicious for anyone who coded in C/C++ and experienced integer overflow with signed <code>char</code> type.
+I investigated the place of the problem in the iperf source code, and it turned out somewhere
+in the aggregating code it compares a <code>char</code> with an <code>int</code> and increases both at every iteration (for every thread).
+Then the <code>char</code> overflows, and the condition <code>if(char == int)</code> will obviously evaluate as <code>false</code>.
+I submitted the bug to the maintainer of <code>iperf</code>, you can find the commit <a href="https://sourceforge.net/p/iperf2/code/ci/be417e3be47fa4929c06cf4080b756fbc270d0f1/">here</a>.
+I recommend using the latest version of iperf to avoid that bug.</p>
+<h1 class="heading" id="summary">
+  Summary
+  <a class="anchor" href="#summary">#</a>
+</h1>
+<ul>
+<li><del>iperf is better for multi TCP flow measurement than iperf3, because multi-threaded.</del> iperf3 also multi-threaded see the beginning of the post</li>
+<li>Older versions of iperf explicitly set backlog length to <code>5</code> which is insufficient, so use iperf version <code>&gt;= 2.0.10</code> or modify the value in the iperf source code manually to a greater value</li>
+<li><code>sudo sysctl -w net.core.somaxconn=65536</code>: in linux, set <code>SOMAXCONN</code> value from the default <code>128</code> to <code>65536</code></li>
+<li>If the aggregated throughput <code>[SUM]</code> disappears with big parallel-flow values (<code>-P &gt; 127</code>) use the latest version of iperf: <a href="https://sourceforge.net/p/iperf2/code/ci/master/tree/">iperf master branch at Sourceforge</a></li>
+</ul>
+
+    </div>
+  </article>
+
+  
+
+  
+
+  
+  
+
+<div class="single-pagination">
+    <hr />
+
+    <div class="flexnowrap">
+
+        <div class="single-pagination-prev">
+            
+            <div class="single-pagination-container-prev">
+                <div class="single-pagination-text">←</div>
+                <div class="single-pagination-text">
+                    <a href="/posts/linux/qemu-brief/">
+                        QEMU virtual machine for kernel testing
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="single-pagination-next">
+            
+        </div>
+
+    </div>
+
+    <hr />
+</div>
+
+
+
+  
+
+  
+
+  
+  <div class="back-to-top">
+    <a href="#top">
+      back to top
+    </a>
+  </div>
+  
+
+</div>
+
+
+    </main>
+  </div>
+
+  
+  
+
+
+
+
+
+    
+
+
+
+
+  <footer>
+    
+
+    
+    
+
+
+
+
+
+    
+
+
+
+
+    
+    <p>Powered by
+        <a href="https://gohugo.io/">Hugo</a>
+        and
+        <a href="https://github.com/tomfran/typo">tomfran/typo</a>
+    </p>
+    
+    
+    
+
+
+  </footer>
+
+  
+</body>
+
+<script src="/js/theme-switch.js"></script>
+<script defer src="/js/copy-code.js"></script>
+</html>

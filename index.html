@@ -1,277 +1,287 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-us"
+  dir="ltr">
+
 <head>
+	<meta name="generator" content="Hugo 0.147.0">
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>Ferenc Fejes technical blog</title>
-  <meta name="renderer" content="webkit" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-<meta name="theme-color" content="#f8f5ec" />
-<meta name="msapplication-navbutton-color" content="#f8f5ec">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
-
-
-<meta name="author" content="Ferenc Fejes" /><meta name="description" content="Ferenc Fejes technical blog." /><meta name="keywords" content="Ferenc, Fejes, MPTCP, proxy, eBPF, linux, networking" />
+<meta name="viewport" content="width=device-width">
 
 
 
 
 
 
-<meta name="generator" content="Hugo 0.85.0 with theme even" />
 
 
-<link rel="canonical" href="/" />
-  <link href="/index.xml" rel="alternate" type="application/rss+xml" title="Ferenc Fejes technical blog" />
-  <link href="/index.xml" rel="feed" type="application/rss+xml" title="Ferenc Fejes technical blog" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    
+
+
+
+
+
+
+<link rel="icon" type="image/ico" href="/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/manifest.json">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<link rel="alternate" type="application/rss+xml" href="/index.xml" title="Ferenc Fejes technical blog">
+<meta name="description" content="A Tech Blog"/>
 
 
 
-<link href="/sass/main.min.214468d271c295414ca1c8696074b3d3f217311b825c08a47749812c8a15d99e.css" rel="stylesheet">
-<link href="/lib/fancybox/jquery.fancybox-3.1.20.min.css" rel="stylesheet">
+<title>
+    
+    Ferenc Fejes technical blog
+    
+</title>
+
+<link rel="canonical" href="/"/>
+
+<meta property="og:url" content="/">
+  <meta property="og:site_name" content="Ferenc Fejes technical blog">
+  <meta property="og:title" content="Home">
+  <meta property="og:description" content="A Tech Blog">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="website">
 
 
-<meta property="og:title" content="Ferenc Fejes technical blog" />
-<meta property="og:description" content="Ferenc Fejes technical blog." />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="/" />
 
-<meta itemprop="name" content="Ferenc Fejes technical blog">
-<meta itemprop="description" content="Ferenc Fejes technical blog."><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Ferenc Fejes technical blog"/>
-<meta name="twitter:description" content="Ferenc Fejes technical blog."/>
 
-<!--[if lte IE 9]>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
-<![endif]-->
 
-<!--[if lt IE 9]>
-  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
-<![endif]-->
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/assets/combined.min.ba8580b62aaae86e67e95977ac83a33f1d4e6c316fae799ae5bbe1b621fcc1a7.css" media="all">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
 
 </head>
-<body>
-  <div id="mobile-navbar" class="mobile-navbar">
-  <div class="mobile-header-logo">
-    <a href="/" class="logo">Ferenc Fejes technical blog</a>
-  </div>
-  <div class="mobile-navbar-icon">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
+
+
+
+
+
+
+
+<body class="auto">
+
+  <div class="content">
+    <header>
+      
+
+<div class="header">
+
+    
+
+    <h1 class="header-title">
+        <a href="/">Ferenc Fejes technical blog</a>
+    </h1>
+
+    <div class="flex">
+        
+
+        
+    </div>
+
+    
+
 </div>
-<nav id="mobile-menu" class="mobile-menu slideout-menu">
-  <ul class="mobile-menu-list">
-    <a href="/">
-        <li class="mobile-menu-item">Home</li>
-      </a><a href="/post/">
-        <li class="mobile-menu-item">Archives</li>
-      </a><a href="/tags/">
-        <li class="mobile-menu-item">Tags</li>
-      </a><a href="/categories/">
-        <li class="mobile-menu-item">Categories</li>
-      </a>
-  </ul>
-
-  
-
-
-</nav>
-
-  <div class="container" id="mobile-panel">
-    <header id="header" class="header">
-        <div class="logo-wrapper">
-  <a href="/" class="logo">Ferenc Fejes technical blog</a>
-</div>
-
-
-
-
-
-<nav class="site-navbar">
-  <ul id="menu" class="menu">
-    <li class="menu-item">
-        <a class="menu-item-link" href="/">Home</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/post/">Archives</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/tags/">Tags</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/categories/">Categories</a>
-      </li>
-  </ul>
-</nav>
 
     </header>
 
-    <main id="main" class="main">
-      <div class="content-wrapper">
-        <div id="content" class="content">
-          <section id="posts" class="posts">
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/net/2019/07/14/many-tcp-flow-with-iperf/">Thousand TCP flow with iperf</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2019-07-14 </span>
-      <div class="post-category">
-          <a href="/categories/net/"> net </a>
-          </div>
-        <span class="more-meta"> 950 words </span>
-        <span class="more-meta"> 5 mins read </span>
-    </div>
-  </header>
-  
-  <div class="post-content">
-    <div class="post-summary">
-      How to do correct iperf measurements with many TCP flows on GNU/Linux test environment
-    </div>
-    <div class="read-more">
-      <a href="/net/2019/07/14/many-tcp-flow-with-iperf/" class="read-more-link">Read more...</a>
-    </div>
-  </div>
-</article>
+    <main class="main">
+      
 
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/linux/2018/07/20/qemu-vm/">QEMU virtual machine for kernel testing</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2018-07-20 </span>
-      <div class="post-category">
-          <a href="/categories/linux/"> linux </a>
-          </div>
-        <span class="more-meta"> 1600 words </span>
-        <span class="more-meta"> 8 mins read </span>
-    </div>
-  </header>
-  
-  <div class="post-content">
-    <div class="post-summary">
-      Few notes and command dump about creating QEMU virtual machine for testing various kernel features.
-    </div>
-    <div class="read-more">
-      <a href="/linux/2018/07/20/qemu-vm/" class="read-more-link">Read more...</a>
-    </div>
-  </div>
-</article>
 
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/mptcp/2017/10/21/lede-mptcp-kernel-4.9/">LEDE MPTCP with kernel 4.9</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2017-10-21 </span>
-      <div class="post-category">
-          <a href="/categories/mptcp/"> mptcp </a>
-          </div>
-        <span class="more-meta"> 137 words </span>
-        <span class="more-meta"> 1 min read </span>
-    </div>
-  </header>
-  
-  <div class="post-content">
-    <div class="post-summary">
-      Just added master branch with the actual (currently unstable but working) MPTCP implementation.
-    </div>
-    <div class="read-more">
-      <a href="/mptcp/2017/10/21/lede-mptcp-kernel-4.9/" class="read-more-link">Read more...</a>
-    </div>
-  </div>
-</article>
 
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/mptcp/2017/08/27/transparent-mptcp-proxy/">Multipath Wi-Fi bridging with transparent MPTCP proxy on LEDE</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2017-08-27 </span>
-      <div class="post-category">
-          <a href="/categories/mptcp/"> mptcp </a>
-          </div>
-        <span class="more-meta"> 1650 words </span>
-        <span class="more-meta"> 8 mins read </span>
-    </div>
-  </header>
-  
-  <div class="post-content">
-    <div class="post-summary">
-      How to setup a transparent, site-to-site MPTCP proxy with LEDE. Detailed tutorial and description of my Google Summer of Code 2017 project.
-    </div>
-    <div class="read-more">
-      <a href="/mptcp/2017/08/27/transparent-mptcp-proxy/" class="read-more-link">Read more...</a>
-    </div>
-  </div>
-</article>
 
-    </section>
-  
-  <nav class="pagination">
+
+
+
+
+
+
+<div class="social-icons">
+    <a href="https://www.linkedin.com/in/fejes/" target="_blank"
+        rel="noopener noreferrer me"
+        title="Linkedin">
+        <svg role="img" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>LinkedIn</title><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    </a>
+    <a href="https://x.com/spyff0" target="_blank"
+        rel="noopener noreferrer me"
+        title="X">
+        <svg role="img" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>X</title><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>
+    </a>
+    <a href="https://github.com/spyff" target="_blank"
+        rel="noopener noreferrer me"
+        title="Github">
+        <svg role="img" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+    </a>
+</div>
+
+
+
+
+
+
+<div class="list-container">
+    
+    <h1> Posts </h1>
+    
+
+    
+
     
     
-  </nav>
-        </div>
+    
+    
+
+    
+
+    
+    <div class="post-line">
+
+    
+    
+    
+    
+
+    <p class="line-date">14 Jul 2019 </p>
+
+    <div>
+        <p class="line-title">
+            <a href="/posts/net/scaling-iperf/">
+                Thousand TCP flows with iperf
+            </a>
+        </p>
+
         
+        <p class="line-summary"> How to do correct iperf measurements with many TCP flows on GNU/Linux test environment </p>
+        
+    </div>
+</div>
+    
+    <div class="post-line">
 
-      </div>
-    </main>
+    
+    
+    
+    
 
-    <footer id="footer" class="footer">
-      <div class="social-links">
-      <a href="mailto:primalgamer@gmail.com" class="iconfont icon-email" title="email"></a>
-      <a href="https://twitter.com/spyff0" class="iconfont icon-twitter" title="twitter"></a>
-      <a href="https://www.linkedin.com/in/fejes/" class="iconfont icon-linkedin" title="linkedin"></a>
-      <a href="https://github.com/SPYFF" class="iconfont icon-github" title="github"></a>
-  <a href="/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+    <p class="line-date">20 Jul 2018 </p>
+
+    <div>
+        <p class="line-title">
+            <a href="/posts/linux/qemu-brief/">
+                QEMU virtual machine for kernel testing
+            </a>
+        </p>
+
+        
+        <p class="line-summary"> Few notes and command dump about creating QEMU virtual machine for testing various kernel features. </p>
+        
+    </div>
+</div>
+    
+    <div class="post-line">
+
+    
+    
+    
+    
+
+    <p class="line-date">27 Aug 2017 </p>
+
+    <div>
+        <p class="line-title">
+            <a href="/posts/mptcp/transparent-mptcp-proxy/">
+                Multipath Wi-Fi bridging with transparent MPTCP proxy on LEDE
+            </a>
+        </p>
+
+        
+        <p class="line-summary"> How to setup a transparent, site-to-site MPTCP proxy with LEDE. Detailed tutorial and description of my Google Summer of Code 2017 project. </p>
+        
+    </div>
+</div>
+    
+
+    
+
+    
 </div>
 
-<div class="copyright">
-  <span class="power-by">
-    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
-  </span>
-  <span class="division">|</span>
-  <span class="theme-info">
-    Theme - 
-    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
-  </span>
+
+    </main>
+  </div>
 
   
-
-  <span class="copyright-year">
-    &copy; 
-    2017 - 
-    2025<span class="heart"><i class="iconfont icon-heart"></i></span><span>Ferenc Fejes</span>
-  </span>
-</div>
-
-    </footer>
-
-    <div class="back-to-top" id="back-to-top">
-      <i class="iconfont icon-up"></i>
-    </div>
-  </div>
-  <script type="text/javascript" src="/lib/jquery/jquery-3.2.1.min.js"></script>
-  <script type="text/javascript" src="/lib/slideout/slideout-1.0.1.min.js"></script>
-  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox-3.1.20.min.js"></script>
-
-
-
-<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+  
 
 
 
 
 
+    
 
 
 
+
+  <footer>
+    
+
+    
+    
+
+
+
+
+
+    
+
+
+
+
+    
+    <p>Powered by
+        <a href="https://gohugo.io/">Hugo</a>
+        and
+        <a href="https://github.com/tomfran/typo">tomfran/typo</a>
+    </p>
+    
+    
+    
+
+
+  </footer>
+
+  
 </body>
+
+<script src="/js/theme-switch.js"></script>
+<script defer src="/js/copy-code.js"></script>
 </html>

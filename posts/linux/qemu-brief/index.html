@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en-us"
+  dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+<link rel="icon" type="image/ico" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<meta name="description" content=""/>
+
+
+
+<title>
+    
+    QEMU virtual machine for kernel testing | Ferenc Fejes technical blog
+    
+</title>
+
+<link rel="canonical" href="/posts/linux/qemu-brief/"/>
+
+<meta property="og:url" content="/posts/linux/qemu-brief/">
+  <meta property="og:site_name" content="Ferenc Fejes technical blog">
+  <meta property="og:title" content="QEMU virtual machine for kernel testing">
+  <meta property="og:description" content="Few notes and command dump about creating QEMU virtual machine for testing various kernel features.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2018-07-20T15:00:00+00:00">
+    <meta property="article:modified_time" content="2018-07-20T15:00:00+00:00">
+    <meta property="article:tag" content="Linux">
+    <meta property="article:tag" content="Vm">
+    <meta property="article:tag" content="Qemu">
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/assets/combined.min.ba8580b62aaae86e67e95977ac83a33f1d4e6c316fae799ae5bbe1b621fcc1a7.css" media="all">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+</head>
+
+
+
+
+
+
+
+<body class="auto">
+
+  <div class="content">
+    <header>
+      
+
+<div class="header">
+
+    
+
+</div>
+
+    </header>
+
+    <main class="main">
+      
+
+
+
+
+<div class="breadcrumbs"><a href="/">Home</a><span class="breadcrumbs-separator">/</span><a href="/posts/">Posts</a><span class="breadcrumbs-separator">/</span>
+        <a href="/posts/linux/qemu-brief/">QEMU virtual machine for kernel testing</a></div>
+
+
+<div >
+  <article>
+    <header class="single-intro-container">
+        
+        <h1 class="single-title">QEMU virtual machine for kernel testing</h1>
+        <p class="single-summary">Few notes and command dump about creating QEMU virtual machine for testing various kernel features.</p>
+    
+        <p class="single-readtime">
+          <time datetime="2018-07-20T15:00:00&#43;00:00">July 20, 2018</time>
+        </p>
+    </header>
+    
+    <div class="single-content">
+      <p><strong>Update 2025:</strong> There is a great project <a href="https://github.com/arighi/virtme-ng">virtme-ng</a> which wrap this whole process.
+With that running a VM is as easy as run <code>vng -r</code> and it can heavy weight everything described below.
+So continue reading only if you curious what happens under the hood.</p>
+<h1 class="heading" id="abstract">
+  Abstract
+  <a class="anchor" href="#abstract">#</a>
+</h1>
+<p>Testing kernel on bare-metal machine is time-consuming. Boot failures, screwing up installed distro, slow restart cycles, etc. There is a very convenient method for booting up a freshly compiled kernel with QEMU. You can compile the kernel on your host machine, then simply slide-load that to a virtual machine with your favorite GNU/Linux distribution. In the following, I will show some commands, how to make an easy to use virtual test environment with QEMU and Ubuntu Server cloud image.</p>
+<h1 class="heading" id="preparations-on-the-host-machine">
+  Preparations on the host machine
+  <a class="anchor" href="#preparations-on-the-host-machine">#</a>
+</h1>
+<p>My host machine running a Ubuntu 18.04 LTS GNU/Linux distribution with a <code>hwe-edge</code> kernel which is version 5.0 currently. For kernel compilation, we should have to install some additional packages:</p>
+<pre tabindex="0"><code>sudo apt install git fakeroot build-essential ncurses-dev \
+     xz-utils libssl-dev bc bison flex libelf-dev
+</code></pre><p>Also, for booting the virtual machine later, we should install the QEMU and some tools for later image preparations:</p>
+<pre tabindex="0"><code>sudo apt install qemu-kvm libvirt-clients libvirt-daemon-system \
+     bridge-utils virt-manager cloud-utils
+</code></pre><h1 class="heading" id="kernel-compilation">
+  Kernel compilation
+  <a class="anchor" href="#kernel-compilation">#</a>
+</h1>
+<p>There are lots of ways to get the kernel source code, for example, clone a repository of it:</p>
+<pre tabindex="0"><code>git clone --depth 1 https://kernel.googlesource.com/pub/scm/linux/kernel/git/davem/net-next.git
+</code></pre><p>I use the <strong>net-next</strong> repository right now, but the process is similar to the stable mainline kernel too.</p>
+<h2 class="heading" id="kernel-configuration">
+  Kernel configuration
+  <a class="anchor" href="#kernel-configuration">#</a>
+</h2>
+<p>The whole kernel compilation process depends on the <code>.config</code> file, which is located at the kernel source root directory (<code>net-next</code> in our case). However, this file did not exist by default, we have to make one. Because we compile it to QEMU-KVM, we don&rsquo;t need many device drivers and real hardware related options. The kernel contains a good default configuration for QEMU-KVM, so we can use that:</p>
+<pre tabindex="0"><code>make x86_64_defconfig
+make kvmconfig
+make -j `nproc --all`
+</code></pre><h2 class="heading" id="creating-and-applying-config-fragments">
+  Creating and applying config fragments
+  <a class="anchor" href="#creating-and-applying-config-fragments">#</a>
+</h2>
+<p>This is okay for test if the kernel compiles and boot successfully, but what if we would like to test the full BPF featureset of the kernel. We have <code>menuconfig</code> of course, but searching all the BPF settings one-by-one is time-consuming and brings the possibility of skipping some accidentally. To overcome the problem, we will use <strong>config fragments</strong>. One way to create them is to cut out the required settings from <code>allyesconfig</code>, in our case the enabled BPF settings.</p>
+<pre tabindex="0"><code>mv .config kvmconf_backup.config
+make allyesconfig
+grep BPF .config &gt; bpf.config
+mv kvmconf_backup.config .config
+./scripts/kconfig/merge_config.sh -m .config bpf.config
+</code></pre><p>In line <strong>1</strong> we make a backup from our original x86_64 kvmconfig, because we use that later. Then we make the <code>allyesconfig</code> in line <strong>2</strong>. This is a special built in configuration, which enable every kernel feature, including modules and drivers. That one takes forever to compile, so we just cut the BPF part (BPF config fragment) and of that in the line <strong>3</strong>. In line <strong>4</strong> we restore the KVM config backup and apply the BPF fragment for that (line <strong>5</strong>). The output of the method is a lightweight config for virtual machine usage, but with all the BPF features enabled.</p>
+<p>Now the kernel is ready for compilation, use the <code>make -j9</code> command for run on 9 threads.</p>
+<h1 class="heading" id="booting-the-virtual-machine">
+  Booting the virtual machine
+  <a class="anchor" href="#booting-the-virtual-machine">#</a>
+</h1>
+<p>I use Ubuntu cloud image as the basis of my virtual machine. Most of the core packages still included in this one, but also designed to run in a virtual environment, so the desktop manager and many other bloats not included.</p>
+<pre tabindex="0"><code>wget https://cloud-images.ubuntu.com/eoan/current/eoan-server-cloudimg-amd64.img
+</code></pre><p>Good practice to keep this image untouched and make an overlay image on top of that for later usage. Writing files in the overlay image is persistent but it does not affect the base image. So if we mess up something very badly, we still have the original image and use that without further problems. We can also make overlay image over overlay images, so if we installed and configured the guest system, we can make an overlay image on top of that and if some bad thing happens, we can revert to the last stable version. Let&rsquo;s create the overlay image:</p>
+<pre tabindex="0"><code>qemu-img create -f qcow2 -b eoan-server-cloudimg-amd64.img ubuntu.img
+</code></pre><p>This Ubuntu image is untouched, we have to put some configuration into it. <code>cloud-init</code> is a method for that. First, we have to create a cloud config file (with very simple yaml syntax) without identity details, hostname, ssh public key, etc. Save this file as <code>init.yaml</code> for example:</p>
+<pre tabindex="0"><code>#cloud-config
+hostname: ubu 
+users:
+  - name: myusername
+    ssh-authorized-keys:
+      - ssh-rsa AAAAB3Nz[...]34twdf/ myusername@pc 
+    sudo: [&#39;ALL=(ALL) NOPASSWD:ALL&#39;]
+    groups: sudo
+    shell: /bin/bash
+</code></pre><p>The <code>#cloud-config</code> comment on the top is mandatory for cloud-init. Now let&rsquo;s build a cloud init image from that file:</p>
+<pre tabindex="0"><code>cloud-localds init.img init.yaml
+</code></pre><p>This <code>init.img</code> also mounted to the virtual machine, and the preinstalled <code>cloud-init</code> tool in the Ubuntu image will take a look into it and configure the required parameters according to that.
+Now we should start the virtual machine using our own kernel:</p>
+<pre tabindex="0"><code>sudo qemu-system-x86_64 \
+-machine accel=kvm,type=q35 \
+-kernel net-next/arch/x86/boot/bzImage \
+-append &#34;root=/dev/sda1 single console=ttyS0 systemd.unit=graphical.target&#34; \
+-hda ubuntu.img \
+-hdb init.img \
+-m 2048 \
+--nographic \
+-netdev user,id=net0,hostfwd=tcp::2222-:22 -device virtio-net-pci,netdev=net0 \
+#-nic user,hostfwd=tcp::2222-:22 \
+-fsdev local,id=fs1,path=/home/spyff/folder_to_share,security_model=none \
+-device virtio-9p-pci,fsdev=fs1,mount_tag=shared_folder
+</code></pre><ul>
+<li>line 1: staring the QEMU with our host architecture</li>
+<li>line 2: sideload the kernel we compiled before for the virtual machine, which will use that instead of his default kernel</li>
+<li>line 3: the overlay image of our untouched Ubuntu cloud image as the rootfs</li>
+<li>line 4: the initialization image for the cloud-init</li>
+<li>line 5: two gigabytes RAM for the VM</li>
+<li>line 6-7: speed up and emulation optimizations</li>
+<li>line 8: forward the virtual machine&rsquo;s SSH port to the host machine&rsquo;s 2222 TCP port</li>
+<li>line 9-10: not necessary, a shared folder between the guest and the host</li>
+</ul>
+<h1 class="heading" id="configuration-of-the-guest">
+  Configuration of the guest
+  <a class="anchor" href="#configuration-of-the-guest">#</a>
+</h1>
+<p>To access the guest over SSH we should use the 2222 port of the host:</p>
+<pre tabindex="0"><code>ssh 0 -p2222
+</code></pre><p>Now for folder sharing, we have to put the following line into the end of the <code>/etc/fstab</code>. In this example, it will mount the <code>/home/spyff/folder_to_share</code> from the host into the guest&rsquo;s <code>/root/shared</code> folder:</p>
+<pre tabindex="0"><code>shared_folder /root/shared 9p trans=virtio 0 0
+</code></pre><h2 class="heading" id="extending-the-disk-space-of-the-guest">
+  Extending the disk space of the guest
+  <a class="anchor" href="#extending-the-disk-space-of-the-guest">#</a>
+</h2>
+<p>By default, the cloud image configured for 2 gigabytes of additional space. This is a virtual limit, so we can extend it for our needs. The following command extend the image (the hard disk in the virtual machine) with 10 gigabytes.</p>
+<pre tabindex="0"><code>qemu-img resize ubuntu.img +10G
+</code></pre><p>The <code>cloud-init</code> will automatically grow the rootfs to the end of the additional space in next boot. However, we can do that manually if our cloud-init is too old for that:</p>
+<pre tabindex="0"><code>sudo apt install cloud-guest-utils
+growpart /dev/sda 1
+</code></pre><p>or if that fails, we still able to do that with <code>parted</code></p>
+<pre tabindex="0"><code>parted
+
+(parted) print                                                            
+Model: ATA QEMU HARDDISK (scsi)
+Disk /dev/sda: 13.1GB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+Disk Flags: 
+
+Number  Start   End     Size    File system  Name  Flags
+14      1049kB  5243kB  4194kB                     bios_grub
+15      5243kB  116MB   111MB   fat32              boot, esp
+ 1      116MB   13.0GB  12.9GB  ext4
+
+(parted) resizepart 1
+End?  [13.0GB]? 13.0GB
+</code></pre><h1 class="heading" id="miscellaneous">
+  Miscellaneous
+  <a class="anchor" href="#miscellaneous">#</a>
+</h1>
+<h2 class="heading" id="installing-kernel-headers">
+  Installing kernel headers
+  <a class="anchor" href="#installing-kernel-headers">#</a>
+</h2>
+<p>The official and most reliable documentation available here: <a href="https://www.kernel.org/doc/Documentation/kbuild/headers_install.txt">https://www.kernel.org/doc/Documentation/kbuild/headers_install.txt</a>
+In our case this looks like the following:</p>
+<pre tabindex="0"><code>make headers_install INSTALL_HDR_PATH=/usr
+</code></pre><h2 class="heading" id="installing-linux-tools">
+  Installing linux tools
+  <a class="anchor" href="#installing-linux-tools">#</a>
+</h2>
+<p>For installing <code>perf</code> and <code>bpftool</code> (including <code>libbpf</code>) do the following:</p>
+<pre tabindex="0"><code>make -C tools/ perf_install prefix=/usr/
+make -C tools/ bpf_install
+ldconfig
+</code></pre><h2 class="heading" id="kernel-debugging-with-gdb-with-ubuntu-1910-cloud-image">
+  Kernel debugging with GDB (with Ubuntu 19.10 cloud-image)
+  <a class="anchor" href="#kernel-debugging-with-gdb-with-ubuntu-1910-cloud-image">#</a>
+</h2>
+<p>Start the machine with the command below, where the <code>-s</code> open up the QEMU&rsquo;s GDB stub socket at the TCP 1234 port:</p>
+<pre tabindex="0"><code>sudo qemu-system-x86_64 \
+-machine accel=kvm,type=q35 \
+-hda ubuntu.img \
+-hdb init.img \
+-m 2048 \
+--nographic \
+-nic user,hostfwd=tcp::2222-:22 \
+-s 
+</code></pre><p>To begin with, we have to get the debug symbols for the kernel. This package not available from the default repositories, we need the debug repositories for that:</p>
+<pre tabindex="0"><code>echo &#34;deb http://ddebs.ubuntu.com $(lsb_release -cs) main restricted universe multiverse
+deb http://ddebs.ubuntu.com $(lsb_release -cs)-updates main restricted universe multiverse
+deb http://ddebs.ubuntu.com $(lsb_release -cs)-proposed main restricted universe multiverse&#34; | \
+sudo tee -a /etc/apt/sources.list.d/ddebs.list
+
+sudo apt install ubuntu-dbgsym-keyring
+sudo apt update
+</code></pre><p>The debug repository contains the required debug packages, select the matching one for our current kernel</p>
+<pre tabindex="0"><code>sudo apt install linux-image-$(uname -r)-dbgsym
+</code></pre><p>Then copy the kernel file to the host machine in order to make it available for GDB to search symbols in it. The required file is <code>/usr/lib/debug/boot/vmlinux-5.3.0-18-generic</code> in this case.</p>
+<p>By default, kernel address space layout randmization (KASLR and KAISER) is enabled. This feautire prevent GDB to match the addresses in the loaded kernel with the ones defined in the debug file. Edit the <code>/etc/default/grub.d/50-cloudimg-settings.cfg</code> file and append <code>nokaiser nokaslr</code> to the kernel command line arguments like below:</p>
+<pre tabindex="0"><code>GRUB_CMDLINE_LINUX_DEFAULT=&#34;console=tty1 console=ttyS0 nokaiser nokaslr&#34;
+</code></pre><p>Then update the GRUB and reboot the guest machine:</p>
+<pre tabindex="0"><code>sudo update-grub
+reboot
+</code></pre><p>Now on the host machine, start GDB and attach to the remote target</p>
+<pre tabindex="0"><code>gdb ./vmlinux-5.3.0-18-generic
+target remote :1234
+</code></pre><p>Now the symbols and breakpoints should work but we still unable to see the source lines. For that, download the source files for our kernel <code>sudo apt install linux-source</code> then copy the downloaded archive into the host machine <code>/usr/src/linux-source-5.3.0/linux-source-5.3.0.tar.bz2</code>. Now we have to tell where the GDB can find the source files. Untar the sources to a directory and set it in the GDB: the original path told by the GDB.</p>
+<pre tabindex="0"><code>set substitute-path /build/linux-IewOGS/linux-5.3.0/ /home/user/linux-source-5.3.0
+</code></pre><p>For kernel module debugging, I found this excellent blogpost: <a href="https://medium.com/@navaneethrvce/debugging-your-linux-kernel-module-21bf8a8728ba">https://medium.com/@navaneethrvce/debugging-your-linux-kernel-module</a></p>
+
+    </div>
+  </article>
+
+  
+
+  
+
+  
+  
+
+<div class="single-pagination">
+    <hr />
+
+    <div class="flexnowrap">
+
+        <div class="single-pagination-prev">
+            
+            <div class="single-pagination-container-prev">
+                <div class="single-pagination-text">←</div>
+                <div class="single-pagination-text">
+                    <a href="/posts/mptcp/transparent-mptcp-proxy/">
+                        Multipath Wi-Fi bridging with transparent MPTCP proxy on LEDE
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="single-pagination-next">
+            
+            <div class="single-pagination-container-next">
+                <div class="single-pagination-text">
+                    <a href="/posts/net/scaling-iperf/">
+                        Thousand TCP flows with iperf
+                    </a>
+                </div>
+                <div class="single-pagination-text">→</div>
+            </div>
+            
+        </div>
+
+    </div>
+
+    <hr />
+</div>
+
+
+
+  
+
+  
+
+  
+  <div class="back-to-top">
+    <a href="#top">
+      back to top
+    </a>
+  </div>
+  
+
+</div>
+
+
+    </main>
+  </div>
+
+  
+  
+
+
+
+
+
+    
+
+
+
+
+  <footer>
+    
+
+    
+    
+
+
+
+
+
+    
+
+
+
+
+    
+    <p>Powered by
+        <a href="https://gohugo.io/">Hugo</a>
+        and
+        <a href="https://github.com/tomfran/typo">tomfran/typo</a>
+    </p>
+    
+    
+    
+
+
+  </footer>
+
+  
+</body>
+
+<script src="/js/theme-switch.js"></script>
+<script defer src="/js/copy-code.js"></script>
+</html>
