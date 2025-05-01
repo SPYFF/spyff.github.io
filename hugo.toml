@@ -1,0 +1,80 @@
+#baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = 'Ferenc Fejes technical blog'
+theme = 'typo'
+
+
+[taxonomies]
+tag = 'tags'
+
+[params]
+# Meta description
+description = "A Tech Blog"
+
+# Appearance settings
+theme = 'auto'
+colorPalette = 'gruvebox'
+hideHeader = true
+
+# Intro on main page, content is markdown
+# homeIntroTitle = 'Hi!'
+# homeIntroContent = """
+# I am an Italian Software Engineer with a strong foundation in computer science and a passion for solving complex problems.
+# I am interested in a range of topics, including algorithms, distributed systems, databases, and information retrieval.
+# """
+
+# Collection to display on home
+homeCollectionTitle = 'Posts'
+homeCollection = 'posts'
+
+# Lists parameters
+paginationSize = 100
+listSummaries = true
+listDateFormat = '2 Jan 2006'
+
+# Breadcrumbs
+[params.breadcrumbs]
+enabled = true
+showCurrentPage = true
+home = "Home"
+
+# Social icons
+[[params.social]]
+name = "linkedin"
+url = "https://www.linkedin.com/in/fejes/"
+
+[[params.social]]
+name = "x"
+url = "https://x.com/spyff0"
+
+[[params.social]]
+name = "github"
+url = "https://github.com/spyff"
+
+# Main menu pages
+# [[params.menu]]
+# name = "home"
+# url = "/"
+#
+# [[params.menu]]
+# name = "posts"
+# url = "/"
+#
+# [[params.menu]]
+# name = "about"
+# url = "/about"
+
+# Syntax highlight on code blocks
+[markup]
+[markup.highlight]
+style = 'algol'
+
+# Giscus comments
+[params.giscus]
+enable = false
+# repo = "user/repo"
+# repoid = "repoId"
+# category = "General"
+# categoryid = "categoryId"
+# mapping = "pathname"
+# theme = "preferred_color_scheme"
