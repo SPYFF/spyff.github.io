@@ -5,6 +5,8 @@ summary: How to setup a transparent, site-to-site MPTCP proxy with LEDE. Detaile
 title: Multipath Wi-Fi bridging with transparent MPTCP proxy on LEDE
 categories: ["net"]
 slug: transparent-mptcp-proxy
+aliases: [/mptcp/2017/08/27/transparent-mptcp-proxy/]
+canonical: "https://fejes.dev/posts/mptcp/transparent-mptcp-proxy/"
 ---
 
 **This post is outdated**

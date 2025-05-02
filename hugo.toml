@@ -78,3 +78,10 @@ enable = false
 # categoryid = "categoryId"
 # mapping = "pathname"
 # theme = "preferred_color_scheme"
+
+[build]
+writeStats = true
+
+[sitemap]
+changefreq = "weekly"
+priority = 0.5

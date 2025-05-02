@@ -5,6 +5,8 @@ date: 2018-07-20T15:00:00Z
 summary: Few notes and command dump about creating QEMU virtual machine for testing various kernel features.
 title: QEMU virtual machine for kernel testing
 slug: "qemu-brief"
+aliases: ["/linux/2018/07/20/qemu-vm/"]
+canonical: "https://fejes.dev/posts/linux/qemu-brief/"
 ---
 
 __Update 2025:__ There is a great project [virtme-ng](https://github.com/arighi/virtme-ng) which wrap this whole process.
