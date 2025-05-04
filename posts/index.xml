@@ -6,8 +6,15 @@
     <description>Recent content in Posts on Ferenc Fejes technical blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 14 Jul 2019 15:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 04 May 2025 10:00:00 +0000</lastBuildDate>
     <atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Per-packet SO_PRIORITY socket API</title>
+      <link>/posts/net/so-priority-cmsg/</link>
+      <pubDate>Sun, 04 May 2025 10:00:00 +0000</pubDate>
+      <guid>/posts/net/so-priority-cmsg/</guid>
+      <description>How to set priority metadata for individual packets.</description>
+    </item>
     <item>
       <title>Thousand TCP flows with iperf</title>
       <link>/posts/net/scaling-iperf/</link>
