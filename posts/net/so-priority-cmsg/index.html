@@ -174,7 +174,7 @@ The API for it is called ancillary or aux message, sometimes referred to as out-
 Let&rsquo;s stick with the control message, or CMSG for short.
 It is used to set fragmentation, traffic class, hop limit, and other options.
 For a comprehensive example, see the <code>cmsg_sender.c</code> <a href="https://elixir.bootlin.com/linux/v6.14.5/source/tools/testing/selftests/net/cmsg_sender.c">selftest in the source tree</a>.</p>
-<p>The new CMSG options introduced in Linux 6.14 are <code>SO_PRIORITY</code> and <code>SO_RCVPRIORITY</code>.
+<p>The new CMSG options <a href="https://lore.kernel.org/netdev/20241213084457.45120-1-annaemesenyiri@gmail.com/T/">introduced</a> in Linux 6.14 are <code>SO_PRIORITY</code> and <code>SO_RCVPRIORITY</code>.
 The priority metadata is 32 bits long and unsigned.
 Without <code>CAP_NET_ADMIN</code> only values from 0 to 6 are accepted.
 The following C code snippet gives an example of how to use this.
