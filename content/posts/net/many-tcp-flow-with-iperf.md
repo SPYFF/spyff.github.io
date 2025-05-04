@@ -5,7 +5,7 @@ date: 2019-07-14T15:00:00Z
 summary: How to do correct iperf measurements with many TCP flows on GNU/Linux test environment
 title: Thousand TCP flows with iperf
 slug: scaling-iperf
-aliases: ["/2019/07/14/many-tcp-flow-with-iperf/"]
+aliases: ["/net/2019/07/14/many-tcp-flow-with-iperf/"]
 canonical: "https://fejes.dev/posts/net/scaling-iperf/"
 ---
 
