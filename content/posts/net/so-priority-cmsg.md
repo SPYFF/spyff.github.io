@@ -50,7 +50,7 @@ Let's stick with the control message, or CMSG for short.
 It is used to set fragmentation, traffic class, hop limit, and other options.
 For a comprehensive example, see the `cmsg_sender.c` [selftest in the source tree](https://elixir.bootlin.com/linux/v6.14.5/source/tools/testing/selftests/net/cmsg_sender.c).
 
-The new CMSG options introduced in Linux 6.14 are `SO_PRIORITY` and `SO_RCVPRIORITY`.
+The new CMSG options [introduced](https://lore.kernel.org/netdev/20241213084457.45120-1-annaemesenyiri@gmail.com/T/) in Linux 6.14 are `SO_PRIORITY` and `SO_RCVPRIORITY`.
 The priority metadata is 32 bits long and unsigned.
 Without `CAP_NET_ADMIN` only values from 0 to 6 are accepted.
 The following C code snippet gives an example of how to use this.
