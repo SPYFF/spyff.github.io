@@ -160,10 +160,10 @@ In addition, NIC drivers used it for VLAN priority tagging and it&rsquo;s offloa
 However, Linux can be used as a VPN gateway, proxy, or software switch (among many other things).
 In such use cases, we might have a userspace application that multiplexes packets into a tunnel.</p>
 <p>For example, a VPN gateway opens a socket that represents the tunneling device.
-The packets are received with different priorities, set by their originating socket or some packet filtering mechanism.
-The VPN application also has a socket representing the tunnel interface.
-But what would be the priority set for this tunnel socket?
-Whatever the application sets, it will mask the original priority of the packet.
+The ingress packets are received with different priorities by the VPN application.
+These priorities set by their originating socket or some packet filtering mechanism (extracted from network headers).
+But what would be the priority set for this tunnel socket applied for the encapsulated, egress packets?
+Whatever the application sets, it will mask the original priority of the ingress packet.
 A more flexible approach is required: set priority on a per-packet basis on the same tunnel socket.</p>
 <h1 class="heading" id="the-per-packet-cmsg-api">
   The per-packet CMSG API
