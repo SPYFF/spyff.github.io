@@ -51,6 +51,10 @@ url = "https://x.com/spyff0"
 name = "github"
 url = "https://github.com/spyff"
 
+[[params.social]]
+name = "googlescholar"
+url = "https://scholar.google.com/citations?user=NI66DGIAAAAJ"
+
 # Main menu pages
 # [[params.menu]]
 # name = "home"
