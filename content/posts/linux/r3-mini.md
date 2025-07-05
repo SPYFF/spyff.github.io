@@ -29,6 +29,39 @@ and the other is USB, so one can equip the board with an NVMe SSD and 5G modem.
 The great thing about this board is the plenty of available
 official and community maintained documentations.
 Also, it has official and unofficial BSPs (Board Support Package,
-essentially customized Linux kernel and rootfs tailored to the board)
+essentially customized Linux kernel and rootfs tailored to the board).
+If one don't want to bother with tweaking described in the following,
+it's very easy to get the board up and running with these.
 
+## About the BPI-R3 Mini
+
+As someone might guess from the name mini, there is a conventional
+router form factor version of the board.
+This packs more Ethernet ports, even two 10GbE.
+What is more interesting, it has SD card slot which makes the experimenting
+much more convenient: if something wrong with our kernel config or
+rootfs, simply unplug the SD card, flash the new image into it and retry.
+
+Unfortunately the R3 mini does not have SD card slot.
+It has an eMMC and SPI flash soldered on the board and that's all.
+This is not a huge problem, but we have to be a bit more careful,
+if something go wrong, we can end up soft-bricked device which takes
+some effort to recover (see later).
+
+We will need an USB flash drive and USB-Ethernet dongle for
+our experiments.
+These USB-Ethernet dongles are most commonly use Realtek 8152/8153/8156 or
+ASIX AX88772/AX88179/AX88279 chipsets.
+All of them [well supported](https://oracle.github.io/kconfigs/?config=USB_RTL8152&config=USB_RTL8150&config=USB_NET_AX88179_178A&config=USB_NET_AX8817X)
+across Linux distros (including Debian), they ship the required drivers as kernel modules.
+
+Another unfortunate limitation of R3 mini that it only has one USB Type-A port.
+In practice that means we need a USB HUB if we want to plug in both the flash drive
+and the Ethernet adapter.
+One alternative is a docking station or similar advanced USB HUB, which
+have the Ethernet adapter built-in.
+
+To say some positive about the R3 Mini compared to R3, it has a CH340E
+USB serial adapter built into it's USB Type-C port.
+So we can power the board from a laptop or PC and have access to the serial console too.
 
