@@ -98,7 +98,37 @@ of formatting layout expected by the bootrom are different.
 
 ## The R3 mini bootchain
 
+The board comes with a custom SinoVOIP (vendor) flavored OpenWRT.
+It's a bit out-of-date so it worth to replace it with a recent
+mainline OpenWRT image, because it is exists since the board released.
+Either way, the default bootchain looks something like this:
 
+```text
+OpenWRT and other
+  BSP bootchain
+
+┌───────────────┐
+│    Bootrom    │  burned into the SoC
+└───────┬───────┘
+        │
+┌───────▼───────┐
+│    u-boot     │  SPI or eMMC
+└───────┬───────┘
+        │
+┌───────▼───────┐
+│     Linux     │  SPI or eMMC or NVMe
+└───────┬───────┘
+        │
+┌───────▼───────┐
+│    rootfs     │  SPI or eMMC or NVMe
+└───────────────┘
+```
+
+I dont want to spoil it just yet, but if we want to boot stock Debian,
+we will have a little bit more complicated bootchain at the end.
+But that is mainly because we want to keep the OpenWRT as an alternative
+to Debian, kind of a recovery system.
+Essentially we can dual-boot OpenWRT and Debian if we want to.
 
 
 Unlike in x86 world where we have more or less the same boot process,
