@@ -54,14 +54,56 @@ These USB-Ethernet dongles are most commonly use Realtek 8152/8153/8156 or
 ASIX AX88772/AX88179/AX88279 chipsets.
 All of them [well supported](https://oracle.github.io/kconfigs/?config=USB_RTL8152&config=USB_RTL8150&config=USB_NET_AX88179_178A&config=USB_NET_AX8817X)
 across Linux distros (including Debian), they ship the required drivers as kernel modules.
+Why would we need such an adapter we have two built-in Ethernet ports, one may ask.
+Well, these Airoha NICs are little bit exotic, at least their kernel modules
+does not shipped with any distro, including Debian.
 
-Another unfortunate limitation of R3 mini that it only has one USB Type-A port.
+Another unfortunate limitation of R3 and R3 mini that they only have one USB Type-A port.
 In practice that means we need a USB HUB if we want to plug in both the flash drive
 and the Ethernet adapter.
 One alternative is a docking station or similar advanced USB HUB, which
 have the Ethernet adapter built-in.
+It is less of a problem for R3 since it has SD card slot so we can boot from that.
+However in the R3 mini case, the only boot media available for us
+in the bootstrap phase is an USB flash drive.
 
 To say some positive about the R3 Mini compared to R3, it has a CH340E
 USB serial adapter built into it's USB Type-C port.
 So we can power the board from a laptop or PC and have access to the serial console too.
+
+# Booting the R3 mini
+
+It would be nice to discuss here the ARM boot process in details.
+That would be a lengthy topic and more importantly I'm lack of the knowledge to do so.
+Therefore in the following I only concentrate on how the R3 mini boots,
+even if most part of it is just standard ARM boot, no vendor specific tricks.
+
+## Boot media
+
+The R3 mini can only boot from it's eMMC or SPI NAND flash storage.
+The bootrom baked into the SoC reads a register and select the boot media
+based on it's value.
+By default this value set by a physical switch found on the board.
+
+Both eMMC and NAND flash has a pre-defined partition layout expected by the bootrom.
+The NAND flash is a little bit simpler memory type than eMMC, and need a
+designated volume management layer for services like track memory wearing, bad blocks,
+and volume management.
+eMMC can manage these by hardware, so after setting up a GPT layout on it
+we are good to go.
+This is important when we flashing any boot image: eMMC and NAND layouts
+are not compatible. As a result, we cant flash the same binary into both.
+Instead, we need separate image for eMMC and for NAND and the steps
+of formatting layout expected by the bootrom are different.
+
+## The R3 mini bootchain
+
+
+
+
+Unlike in x86 world where we have more or less the same boot process,
+ARM world is bit different.
+At x86, hardware components mostly discovered with ACPI probing,
+while ARM based platforms prefers hardware descriptions shipped
+with the bootloader.
 
