@@ -112,15 +112,15 @@ OpenWRT and other
 └───────┬───────┘
         │
 ┌───────▼───────┐
-│    u-boot     │  SPI or eMMC
+│    u-boot     │  NAND or eMMC
 └───────┬───────┘
         │
 ┌───────▼───────┐
-│     Linux     │  SPI or eMMC or NVMe
+│     Linux     │  NAND or eMMC or NVMe
 └───────┬───────┘
         │
 ┌───────▼───────┐
-│    rootfs     │  SPI or eMMC or NVMe
+│    rootfs     │  NAND or eMMC or NVMe
 └───────────────┘
 ```
 
@@ -129,6 +129,37 @@ we will have a little bit more complicated bootchain at the end.
 But that is mainly because we want to keep the OpenWRT as an alternative
 to Debian, kind of a recovery system.
 Essentially we can dual-boot OpenWRT and Debian if we want to.
+
+# Installation process
+
+## Flash OpenWRT to eMMC
+
+There is a detailed guide on how to do that.
+On the NAND we keep the vendor provided image, which is an old customized OpenWRT.
+To flash the eMMC we have to boot from the NAND, so let's flip the
+physical switch to the NAND options and power on the device.
+We need the USB flash drive (FAT filesystem) with the upstream OpenWRT files.
+Those are downloaded from OpenWRT firmware selector page.
+Not all files needed from there, only those which mentioned in the commands.
+
+I copy here the commands required for the flashing just for reference.
+Boot into the OS found in NAND, then connect to USB flash drive and copy the files to `/tmp`.
+As mentioned before, the eMMC layout is fix, therefore every partition must be the same as below.
+
+
+```bash
+dd if=/tmp/openwrt-*-r3-mini-emmc-gpt.bin of=/dev/mmcblk0
+# reboot
+echo 0 > /sys/block/mmcblk0boot0/force_ro
+dd if=/tmp/openwrt-*-bananapi_bpi-r3-mini-emmc-preloader.bin of=/dev/mmcblk0boot0
+dd if=/tmp/openwrt-*-bananapi_bpi-r3-mini-emmc-bl31-uboot.fip of=/dev/mmcblk0p3
+dd if=/tmp/openwrt-*-bananapi_bpi-r3-mini-initramfs-recovery.itb of=/dev/mmcblk0p4
+dd if=/tmp/openwrt-*-bananapi_bpi-r3-mini-squashfs-sysupgrade.itb of=/dev/mmcblk0p5
+sync
+# reboot again
+```
+
+
 
 
 Unlike in x86 world where we have more or less the same boot process,
