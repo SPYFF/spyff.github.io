@@ -159,12 +159,69 @@ sync
 # reboot again
 ```
 
+## Get to the bootloader
 
+After booting the device, a boot menu appears for a brief time.
+There if `ESC` pressed, we get to the u-boot CLI.
+U-boot essentially the industry standard second-stage bootloader
+for embedded devices.
+It has lots of features, but usually many of them turned off compile time,
+so the final bootloader binary will be small, easy to flash on limited space.
 
+By default it would load the Linux kernel image into the memory,
+and jump to it to boot the system.
+Instead of this, we would like to boot the Debian installer here.
+It's a great thing that OpenWRT's u-boot compiled with EFI support.
+With that, it's very easy to get to the installer.
 
+## Debian installation
+
+For those who installed Debian as VM or on x86 machine I have good news:
+the process basically the same for the R3 mini.
+However there will be few tricks for get to the installer,
+and don't leave a broken system after the installation.
+
+### Preparations
+
+At the time of writing, Debian Trixie can be installed on R3 mini,
+but it is not released yet so we need the RC1 installer DVD.
+There are weekly generated DVD images as well, but in my case
+that complained about mismatching kernel and module versions.
+As the installer media, we will use the USB drive, we need to
+format it to __EXT4__ filesystem.
+Then simply copy all the files (even the hidden folders) from the mounted
+Trixie ISO to the USB.
+
+Now we have the installer files ready, but we will need the device-tree binary,
+to boot the system.
 Unlike in x86 world where we have more or less the same boot process,
 ARM world is bit different.
 At x86, hardware components mostly discovered with ACPI probing,
-while ARM based platforms prefers hardware descriptions shipped
-with the bootloader.
+while ARM based platforms prefers hardware descriptions.
+These are different for each device, and containing data for Linux
+about addressable memory, CPU layout/cores, PCIe, USB hubs, etc.
+This descriptor is the standardized and widely-adopted device-tree source (DTS)
+text based format, which is compiled to binary (DTB) to be used.
+For R3 mini we can download the DTB file separately from here:
+https://d-i.debian.org/daily-images/arm64/daily/device-tree/mediatek/mt7986a-bananapi-bpi-r3-mini.dtb
+Then copy it to the USB so we can access it when we load the installer.
 
+### Load the installer
+
+Connect the USB to the R3 mini (while we still in the u-boot console)
+and load the installer as a EFI payload.
+For that we will need the DTB file as well, which will be passed
+for GRUB which is the default bootloader of Debian.
+
+```bash
+usb start
+setenv fdt_addr_r 0x40000000
+setenv kernel_addr_r 0x40008000
+ext4load usb 0:3 ${fdt_addr_r} mt7986a-bananapi-bpi-r3-mini.dtb
+fatload usb 0:2 ${kernel_addr_r} EFI/boot/grubaa64.efi
+bootefi ${kernel_addr_r} ${fdt_addr_r}
+```
+
+This will boot the familiar GRUB which eventually loads the
+installer itself.
+Here we got a bootmenu again, but 
