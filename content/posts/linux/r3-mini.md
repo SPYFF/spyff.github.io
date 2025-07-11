@@ -70,6 +70,13 @@ in the bootstrap phase is an USB flash drive.
 To say some positive about the R3 Mini compared to R3, it has a CH340E
 USB serial adapter built into it's USB Type-C port.
 So we can power the board from a laptop or PC and have access to the serial console too.
+For console access, I use `tio` which listen on the console and automatically
+attach if the device started, or detach if the cable unplugged.
+
+```bash
+sudo tio /dev/ttyUSB0
+```
+
 
 # Booting the R3 mini
 
@@ -222,6 +229,85 @@ fatload usb 0:2 ${kernel_addr_r} EFI/boot/grubaa64.efi
 bootefi ${kernel_addr_r} ${fdt_addr_r}
 ```
 
-This will boot the familiar GRUB which eventually loads the
-installer itself.
-Here we got a bootmenu again, but 
+This will boot the familiar GRUB with the installer's menu.
+Since we connected with serial console, we only have character interface,
+so instead of a screenshot, I simply "copy" the menu below:
+
+```text
+/-------------------------------------------------------------\
+|                                                             |
+|                                                             |
+|*Install                                                     |
+| Graphical install                                           |
+| Advanced options ...                                        |
+| Accessible dark contrast installer menu ...                 |
+| Install with speech synthesis                               |
+|                                                             |
+|                                                             |
+|                                                             |
+|                                                             |
+\-------------------------------------------------------------/
+
+Use the ^ and v keys to select which entry is highlighted.
+Press enter to boot the selected OS, `e' to edit the commands
+```
+
+But here we cannot simply move forward with the installation.
+If we try, it will stuck in a few seconds with a kernel panic.
+Instead, press 'e' and on the fly edit the "Install" GRUB menu entry.
+The default entry is something like this:
+
+```text
+setparams 'Install'
+
+    set background_color=black
+    linux    /linux --- quiet
+    initrd   /initrd.gz
+```
+
+We have to ignore the uninitialized clocks.
+This is because at the moment the clock drivers for MT7986
+are shipped as kernel modules instead built into the kernel.
+However we cannot reach the initramfs loading without them.
+This is because the kernel expect all the clocks bound to their drivers
+before the init part, which can only happens if they built-in.
+Chicken or egg problem, but we need to advance further.
+There is a good article about the kernel command line parameter we well use
+in order to ignore these clocks.
+With that in mind, just edit the menu entry like this:
+
+```text
+setparams 'Install'
+
+    set background_color=black
+    linux    /linux clk_ignore_unused pd_ignore_unused cma=128M console=ttyS0,115200n8
+    initrd   /initrd.gz
+```
+
+The `console...` parameter is optional, it tells the kernel to output it's
+log messages to the serial port.
+If not given, we can't see error messages printed by the kernel if something wrong.
+
+If there are no issues, we will reach the Debian Installer after booting
+with this entry.
+
+### Installing Debian
+
+The installation is quite straightforward and plenty of guide available online if there are issues.
+Few things to look for:
+
+* The DVD installer has almost every driver modules included,
+we are fine with offline installation, no network needed
+* Even with that, it worth to connect the R3 mini to the network
+with the USB Ethernet dongle, so it can download up-to-date packages
+* In my case, the built-in WLAN and Ethernet was unavailable. That is because the WLAN driver is included
+in the DVD, but the `linux-firmware` package not. Same for the Ethernet, but there not even the driver included.
+* I installed the system into a NVMe SSD. This was intentional, to be able to dual-boot with OpenWRT.
+
+### Post-installation
+
+When the installer finished it's job, do not reboot the system!
+We have to edit `/etc/default/grub` and `/boot/grub/boot.cfg` as we did
+in the installer menu, to ignore the uninitialized clocks.
+
+GRUB_CMDLINE_LINUX_DEFAULT="quiet clk_ignore_unused pd_ignore_unused cma=128M"
