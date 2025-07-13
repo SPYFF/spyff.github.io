@@ -310,4 +310,47 @@ When the installer finished it's job, do not reboot the system!
 We have to edit `/etc/default/grub` and `/boot/grub/boot.cfg` as we did
 in the installer menu, to ignore the uninitialized clocks.
 
+For that, press `Ctrl+A` and `2` to switch from the installer's screen to the shell screen.
+Here edit `/boot/grub/boot.cfg` with `nano` (since `vi` or `vim` not included in the installer).
+Search for `menuentry 'Debian GNU/Linux'...` which is usually the first entry,
+above `menuentry 'Advanced options for Debian GNU/Linux'...`.
+Edit or copy the entry entirely and create a new menu entry something like this
+(some text omitted where `...`):
+
+```
+menuentry 'R3 mini Debian GNU/Linux' --class debian ... {
+	insmod part_gpt
+	insmod ext2
+...
+	linux	/boot/vmlinuz root=UUID=... console=ttyS0,115200n8 clk_ignore_unused pd_ignore_unused cma=128M
+	initrd	/boot/initrd.img
+  devicetree /boot/mt7986a-bananapi-bpi-r3-mini.dtb
+}
+```
+
+This entry right now only temporary, only required for the first boot.
+The important part here aside from the ignore unused clock drivers is the
+`devicetree` line, which tells GRUB the path of the DTB should passed to the kernel.
+But it is not there, so first, mount the root partition from NVMe SSD,
+and copy the DTB from the USB to the `/boot` folder.
+
+To make these changes permanent, we need to add the following line
+to the `/etc/default/grub`:
+
+```text
 GRUB_CMDLINE_LINUX_DEFAULT="quiet clk_ignore_unused pd_ignore_unused cma=128M"
+```
+
+This not has immediate effect, instead, it modified the GRUB config generation
+to append these booting parameters to the kernel arguments.
+Therefore, after we boot into the Debian system, and run `update-grub` command or
+update the kernel, these arguments will appear the newly generated `grub.cfg`.
+But we not there yet...
+
+## Fixing the boot
+
+TODO: u-boot config
+customized u-boot fork...
+chainload u-boot from USB
+create custom u-boot menu entries
+
