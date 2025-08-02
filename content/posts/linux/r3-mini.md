@@ -31,6 +31,11 @@ essentially a customized Linux kernel and rootfs tailored to the board).
 If one doesn't want to bother with the tweaking described in the following,
 it's very easy to get the board up and running with these.
 
+* Vendor's page with useful links [here](https://docs.banana-pi.org/en/BPI-R3_Mini/BananaPi_BPI-R3_Mini)
+* OpenWRT database entry [here](https://openwrt.org/toh/sinovoip/bananapi_bpi_r3_mini)
+* BananaPi forum topics for this board [here](https://forum.banana-pi.org/c/banana-router/bpi-r3/64)
+* Frank Wunderlich's wiki page with many useful info [here](https://www.fw-web.de/dokuwiki/doku.php?id=en:bpi-r3mini:start)
+
 ## About the BPI-R3 Mini
 
 As one might guess from the name “mini,” there is a conventional router form factor version of the board. 
