@@ -1,36 +1,34 @@
 ---
 categories: ["linux", "router"]
-date: 2025-07-05T07:00:00Z
-summary: Installing stock Debian into Banana Pi BPI-R3 Mini router board with u-boot chainloading
+date: 2025-08-01T07:00:00Z
+summary: Installing stock Debian into Banana Pi BPI-R3 Mini router board
 title: BPI-R3 Mini with stock Debian
 slug: "r3-mini"
-#canonical: "https://fejes.dev/posts/net/so-priority-cmsg/"
+canonical: "https://fejes.dev/posts/linux/r3-mini/"
 draft: true
 ---
 
 # Intro
 
-Banana Pi BPI-R3 Mini is a palm sized router/development board.
-It's quite powerful with Mediatek MT7986 quad-core CPU and 2Gb RAM.
-With 2x2.5GbE and 2.4/5GHz 802.11ax Wi-Fi good candidate for a portable router.
-However in this post I would like to go beyond simply flashing an OpenWRT into it
-and call it a day.
+Banana Pi BPI-R3 Mini is a palm-sized router/development board.
+It's quite powerful, with a Mediatek MT7986 quad-core CPU and 2GB of RAM.
+With 2x2.5GbE and 2.4/5GHz 802.11ax Wi-Fi, it's a good candidate for a portable router.
+However, in this post, I would like to go beyond simply flashing OpenWRT into it and calling it a day.
 
-My main goal is understand how it boots then install stock Debian into it.
-By stock I mean the installer officially provided by the Debian project,
-no modifications or custom built debootstrap images.
-Ideally, I want to keep the OpenWRT system as well (just in case),
-and install Debian into the NVMe SSD and booting it as the default system.
-Yes, despite the small size it has two M.2 slot, and one of them is PCIe
-and the other is USB, so one can equip the board with an NVMe SSD and 5G modem.
+My main goal is to understand how it boots, then install stock Debian into it.
+By "stock," I mean the installer officially provided by the Debian project,
+no modifications or custom-built debootstrap images.
+Ideally, I want to keep the OpenWRT system as well (just in case) and
+install Debian into the NVMe SSD, booting it as the default system.
+Yes, despite the small size, it has two M.2 slots, and one of them is
+PCIe while the other is USB, so one can equip the board with an NVMe SSD and a 5G modem.
 
 ## Available resources
 
-The great thing about this board is the plenty of available
-official and community maintained documentations.
-Also, it has official and unofficial BSPs (Board Support Package,
-essentially customized Linux kernel and rootfs tailored to the board).
-If one don't want to bother with tweaking described in the following,
+The great thing about this board is the plenty of available official and community-maintained documentation.
+Also, it has official and unofficial BSPs (Board Support Package - 
+essentially a customized Linux kernel and rootfs tailored to the board).
+If one doesn't want to bother with the tweaking described in the following,
 it's very easy to get the board up and running with these.
 
 ## About the BPI-R3 Mini
@@ -349,8 +347,109 @@ But we not there yet...
 
 ## Fixing the boot
 
-TODO: u-boot config
-customized u-boot fork...
-chainload u-boot from USB
-create custom u-boot menu entries
+At the moment, we have Debian installed on the NVMe SSD but impossible to boot it.
+This is because OpenWRT nor upstream u-boot (at least right now) does not support PCIe of the R3 mini.
+There is a [patch](https://patchwork.ozlabs.org/project/uboot/patch/20240412141051.23943-1-linux@fw-web.de/) submitted for that,
+but that is only RFC, not intended for merge.
 
+Frank Wunderlich maintains a fork of u-boot with PCIe enabled.
+I [forked](https://github.com/SPYFF/u-boot/releases) this, since I wanted to enable some other features like EFI boot and EXT4 filesystem.
+With this u-boot config we can boot from the NVMe.
+It would be nice if we can do this with the stock OpenWRT u-boot,
+one way to do that would be keep `/boot` on the eMMC and the rest of the rootfs on the NVMe.
+But let's keep this for future work, maybe subject of another post.
+
+### Modified bootchain
+
+```text
+Modified bootchain
+    for Debian
+
+┌───────────────┐ 
+│    Bootrom    │  burned into the SoC
+└───────┬───────┘
+        │
+┌───────▼───────┐
+│ u-boot, OWRT  │  eMMC
+│     stock     │
+└───────┬───────┘
+        │
+┌───────▼───────┐
+│ u-boot, fork  │  USB flashdrive
+└───────┬───────┘
+        │
+┌───────▼───────┐
+│     GRUB      │  NVMe
+└───────┬───────┘
+        │
+┌───────▼───────┐
+│     Linux     │  NVMe
+└───────────────┘
+```
+
+This bootchain is complicated, but does not touch the original OpenWRT install,
+and able to dual-boot Debian as well.
+First, the stock OpenWRT u-boot booted, which is only chainload the forked u-boot
+with PCIe, EXT4 and EFI boot support.
+For convenience, this u-boot binary placed into a USB flashdrive, so it can be replaced easily if needed.
+Next, with EFI boot this boots the GRUB installed by Debian.
+Previously we modified the `grub.cfg` so now it can load the kernel and boot the system.
+
+To achieve this, we need the following new, persistent u-boot environment config.
+
+```bash
+setenv bootmenu_11 'Chainload from u-boot from USB.=run boot_usb_chain ; run bootmenu_confirm_return'
+setenv bootmenu_default '11'
+setenv bootmenu_delay '5'
+setenv boot_usb_chain 'led $bootled_pwr on ; usb start ; fatload usb 0:1 $loadaddr uboot.bin ; go $loadaddr ; led $bootled_pwr off'
+env save
+```
+
+The first line create a new menu entry in OpenWRT default bootmenu,
+the second line set this entry to the default.
+The forth line initialize the u-boot USB subsystem, load the our customized fork u-boot's
+binary `uboot.bin` to the memory and jumps into it.
+Lastly, `env save` makes these changes persistent.
+
+In this u-boot, we also need some modifications:
+
+```bash
+setenv bootmenu_4 '5. Boot Debian from NVMe (EFI).=run bootnvmeefi_deb'
+setenv bootmenu_default '4'
+setenv bootnvmeefi_deb 'usb start ; pci enum ; nvme scan ; setenv kernel_addr_r 0x40008000 ; setenv fdt_addr_r 0x40000000 ; fatload usb 0:1 ${fdt_addr_r} mt7986a-bananapi-bpi-r3-mini.dtb ; fatload nvme 0:2 ${kernel_addr_r} EFI/debian/shimaa64.efi ; bootefi ${kernel_addr_r} ${fdt_addr_r}'
+env save
+```
+
+The most important is the lengthy line.
+It loads the devicetree from USB, the GRUB EFI payload from the NVMe, finally boots it.
+Form that, we will have normal GRUB to Linux bootchain, what we used to have in Debian/Ubuntu.
+
+In GRUB menu, we have to choose the `R3 mini Debian GNU/Linux` entry,
+which has been made in the post-installation step of the guide.
+If everything OK, the board should boot Debian fine.
+
+### At first boot of Debian
+
+The bootmenu entry used to load Linux was only a temporary entry in `grub.cfg`.
+That is because `grub.cfg` automatically generated on each kernel update,
+based on the rules defined in the defaults file: `/etc/default/grub`.
+To make this entry resistant to kernel updates, we have to extend the kernel
+parameters as in below:
+
+```bash
+GRUB_CMDLINE_LINUX_DEFAULT="quiet clk_ignore_unused pd_ignore_unused cma=128M"
+GRUB_CMDLINE_LINUX="quiet clk_ignore_unused pd_ignore_unused cma=128M"
+```
+
+If just `GRUB_CMDLINE_LINUX_DEFAULT` modified, only one menuentry (the default)
+extended with these parameters.
+With that, it's safe to execute `sudo update-grub` to manually trigger a `grub.cfg` generation.
+Before the reboot, verify if the new parameters are included in all menuentry:
+
+```bash
+cat /boot/grub/grub.cfg | grep linux | grep clk
+```
+
+If the output not empty, it' safe to reboot the board and in the future,
+simply choose the default menuentry.
+Kernel updates should not mess up the boot either.
