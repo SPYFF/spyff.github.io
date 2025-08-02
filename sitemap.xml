@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>/posts/linux/r3-mini/</loc>
+    <lastmod>2025-08-01T07:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
     <loc>/</loc>
     <lastmod>2025-08-01T07:00:00+00:00</lastmod>
     <changefreq>weekly</changefreq>

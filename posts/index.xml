@@ -6,8 +6,15 @@
     <description>Recent content in Posts on Ferenc Fejes technical blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 04 May 2025 10:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 01 Aug 2025 07:00:00 +0000</lastBuildDate>
     <atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>BPI-R3 Mini with stock Debian</title>
+      <link>/posts/linux/r3-mini/</link>
+      <pubDate>Fri, 01 Aug 2025 07:00:00 +0000</pubDate>
+      <guid>/posts/linux/r3-mini/</guid>
+      <description>Installing stock Debian into Banana Pi BPI-R3 Mini router board</description>
+    </item>
     <item>
       <title>Per-packet SO_PRIORITY socket API</title>
       <link>/posts/net/so-priority-cmsg/</link>

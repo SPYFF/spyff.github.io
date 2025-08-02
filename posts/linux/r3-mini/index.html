@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en-us"
+  dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+
+
+
+
+
+
+
+
+    
+
+
+   
+    <link rel="canonical" href="/posts/linux/r3-mini/" />
+<meta name="google-site-verification" content="2P_FxaDVXfb6cdRTwbSUgI0pq98IOMy5K-l0kEDTI-E" />
+
+
+
+
+
+
+<link rel="icon" type="image/ico" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<meta name="description" content=""/>
+
+
+
+<title>
+    
+    BPI-R3 Mini with stock Debian | Ferenc Fejes technical blog
+    
+</title>
+
+<link rel="canonical" href="/posts/linux/r3-mini/"/>
+
+<meta property="og:url" content="/posts/linux/r3-mini/">
+  <meta property="og:site_name" content="Ferenc Fejes technical blog">
+  <meta property="og:title" content="BPI-R3 Mini with stock Debian">
+  <meta property="og:description" content="Installing stock Debian into Banana Pi BPI-R3 Mini router board">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-08-01T07:00:00+00:00">
+    <meta property="article:modified_time" content="2025-08-01T07:00:00+00:00">
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/assets/combined.min.ba8580b62aaae86e67e95977ac83a33f1d4e6c316fae799ae5bbe1b621fcc1a7.css" media="all">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+</head>
+
+
+
+
+
+
+
+<body class="auto">
+
+  <div class="content">
+    <header>
+      
+
+<div class="header">
+
+    
+
+</div>
+
+    </header>
+
+    <main class="main">
+      
+
+
+
+
+<div class="breadcrumbs"><a href="/">Home</a><span class="breadcrumbs-separator">/</span><a href="/posts/">Posts</a><span class="breadcrumbs-separator">/</span>
+        <a href="/posts/linux/r3-mini/">BPI-R3 Mini with stock Debian</a></div>
+
+
+<div >
+  <article>
+    <header class="single-intro-container">
+        
+        <h1 class="single-title">BPI-R3 Mini with stock Debian</h1>
+        <p class="single-summary">Installing stock Debian into Banana Pi BPI-R3 Mini router board</p>
+    
+        <p class="single-readtime">
+          <time datetime="2025-08-01T07:00:00&#43;00:00">August 1, 2025</time>
+        </p>
+    </header>
+    
+    <div class="single-content">
+      <h1 class="heading" id="intro">
+  Intro
+  <a class="anchor" href="#intro">#</a>
+</h1>
+<p>Banana Pi BPI-R3 Mini is a palm-sized router/development board.
+It&rsquo;s quite powerful, with a Mediatek MT7986 quad-core CPU and 2GB of RAM.
+With 2x2.5GbE and 2.4/5GHz 802.11ax Wi-Fi, it&rsquo;s a good candidate for a portable router.
+However, in this post, I would like to go beyond simply flashing OpenWRT into it and calling it a day.</p>
+<p>My main goal is to understand how it boots, then install stock Debian into it.
+By &ldquo;stock,&rdquo; I mean the installer officially provided by the Debian project,
+no modifications or custom-built debootstrap images.
+Ideally, I want to keep the OpenWRT system as well (just in case) and
+install Debian into the NVMe SSD, booting it as the default system.
+Yes, despite the small size, it has two M.2 slots, and one of them is
+PCIe while the other is USB, so one can equip the board with an NVMe SSD and a 5G modem.</p>
+<h2 class="heading" id="available-resources">
+  Available resources
+  <a class="anchor" href="#available-resources">#</a>
+</h2>
+<p>The great thing about this board is the plenty of available official and community-maintained documentation.
+Also, it has official and unofficial BSPs (Board Support Package -
+essentially a customized Linux kernel and rootfs tailored to the board).
+If one doesn&rsquo;t want to bother with the tweaking described in the following,
+it&rsquo;s very easy to get the board up and running with these.</p>
+<h2 class="heading" id="about-the-bpi-r3-mini">
+  About the BPI-R3 Mini
+  <a class="anchor" href="#about-the-bpi-r3-mini">#</a>
+</h2>
+<p>As one might guess from the name “mini,” there is a conventional router form factor version of the board.
+This packs more Ethernet ports, even two 10GbE. What is more interesting, it has an SD card slot, which makes experimenting much more convenient: if something goes wrong with our kernel config or rootfs, simply unplug the SD card, flash the new image into it, and retry.</p>
+<p>Unfortunately, the R3 mini does not have an SD card slot.
+It has an eMMC and SPI flash soldered onto the board, and that&rsquo;s all.
+This isn&rsquo;t a huge problem, but we have to be a bit more careful, as if something goes wrong, we can end up with a soft-bricked device that takes some effort to recover (see later).</p>
+<p>We will need a USB flash drive and a USB-Ethernet dongle for our experiments.
+These USB-Ethernet dongles most commonly use Realtek 8152/8153/8156 or ASIX AX88772/AX88179/AX88279 chipsets.
+All of them are <a href="https://oracle.github.io/kconfigs/?config=USB_RTL8152&amp;config=USB_RTL8150&amp;config=USB_NET_AX88179_178A&amp;config=USB_NET_AX8817X">well supported</a> across Linux distros (including Debian), as they ship with the required drivers as kernel modules.
+Why would we need such an adapter when we have two built-in Ethernet ports, one may ask?
+Well, these Airoha NICs are a little bit exotic, at least their kernel modules don’t ship with any distro, including Debian.</p>
+<p>Another unfortunate limitation of the R3 and R3 mini is that they only have one USB Type-A port.
+In practice, that means we need a USB hub if we want to plug in both the flash drive and the Ethernet adapter.
+One alternative is a docking station or similar advanced USB hub, which has the Ethernet adapter built-in.
+It’s less of a problem for the R3 since it has an SD card slot, so we can boot from that.
+However, in the R3 mini case, the only boot media available to us in the bootstrap phase is a USB flash drive.</p>
+<p>To say something positive about the R3 Mini compared to the R3, it has a CH340E USB serial adapter built into its USB Type-C port.
+So, we can power the board from a laptop or PC and have access to the serial console too.
+For console access, I use <code>tio</code>, which listens on the console and automatically attaches if the device starts or detaches if the cable is unplugged.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo tio /dev/ttyUSB0
+</span></span></code></pre></div><h1 class="heading" id="booting-the-r3-mini">
+  Booting the R3 mini
+  <a class="anchor" href="#booting-the-r3-mini">#</a>
+</h1>
+<p>It would be nice to discuss the ARM boot process in detail here.
+That would be a lengthy topic, and more importantly, I lack the knowledge to do so.
+Therefore, in the following, I only concentrate on how the R3 mini boots,
+even if most of it is just standard ARM boot, with no vendor-specific tricks.</p>
+<h2 class="heading" id="boot-media">
+  Boot media
+  <a class="anchor" href="#boot-media">#</a>
+</h2>
+<p>The R3 mini can only boot from its eMMC or SPI NAND flash storage.
+The bootrom baked into the SoC reads a register and selects the boot media based on its value.
+By default, this value is set by a physical switch found on the board.</p>
+<p>Both eMMC and NAND flash have a pre-defined partition layout expected by the bootrom.
+The NAND flash is a simpler memory type than eMMC and needs a designated
+volume management layer for services like tracking memory wear, bad blocks, and volume management.
+eMMC can manage these by hardware, so after setting up a GPT layout on it, we are good to go.
+This is important when flashing any boot image: eMMC and NAND layouts are not compatible.
+As a result, we can’t flash the same binary into both.
+Instead, we need separate images for eMMC and NAND, and the steps of
+formatting the layout expected by the bootrom are different.</p>
+<h2 class="heading" id="the-r3-mini-bootchain">
+  The R3 mini bootchain
+  <a class="anchor" href="#the-r3-mini-bootchain">#</a>
+</h2>
+<p>The board comes with a custom SinoVOIP (vendor) flavored OpenWRT.
+It’s a bit out-of-date, so it’s worth replacing it with a recent mainline OpenWRT image,
+Either way, the default bootchain looks something like this:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>OpenWRT and other
+</span></span><span style="display:flex;"><span>  BSP bootchain
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>┌───────────────┐
+</span></span><span style="display:flex;"><span>│    Bootrom    │  burned into the SoC
+</span></span><span style="display:flex;"><span>└───────┬───────┘
+</span></span><span style="display:flex;"><span>        │
+</span></span><span style="display:flex;"><span>┌───────▼───────┐
+</span></span><span style="display:flex;"><span>│    u-boot     │  NAND or eMMC
+</span></span><span style="display:flex;"><span>└───────┬───────┘
+</span></span><span style="display:flex;"><span>        │
+</span></span><span style="display:flex;"><span>┌───────▼───────┐
+</span></span><span style="display:flex;"><span>│     Linux     │  NAND or eMMC or NVMe
+</span></span><span style="display:flex;"><span>└───────┬───────┘
+</span></span><span style="display:flex;"><span>        │
+</span></span><span style="display:flex;"><span>┌───────▼───────┐
+</span></span><span style="display:flex;"><span>│    rootfs     │  NAND or eMMC or NVMe
+</span></span><span style="display:flex;"><span>└───────────────┘
+</span></span></code></pre></div><p>I don’t want to spoil it just yet, but if we want to boot stock Debian,
+we will have a little bit more complicated bootchain at the end.
+But that is mainly because we want to keep the OpenWRT as an alternative to Debian, kind of a recovery system.
+Essentially, we can dual-boot OpenWRT and Debian if we want to.</p>
+<h1 class="heading" id="installation-process">
+  Installation process
+  <a class="anchor" href="#installation-process">#</a>
+</h1>
+<h2 class="heading" id="flash-openwrt-to-emmc">
+  Flash OpenWRT to eMMC
+  <a class="anchor" href="#flash-openwrt-to-emmc">#</a>
+</h2>
+<p>There is a detailed guide on how to do that.
+On the NAND, we keep the vendor-provided image, which is an old customized OpenWRT.
+To flash the eMMC, we have to boot from the NAND, so let’s flip the physical switch to the NAND option and power on the device.
+We need the USB flash drive (FAT filesystem) with the upstream OpenWRT files.
+Those are downloaded from the OpenWRT firmware selector page.
+Not all files are needed from there, only those mentioned in the commands.</p>
+<p>I copy the commands required for the flashing just for reference.
+Boot into the OS found in NAND, then connect to the USB flash drive and copy the files to <code>/tmp</code>.
+As mentioned before, the eMMC layout is fixed, therefore every partition must be the same as below.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>dd <span style="font-weight:bold;text-decoration:underline">if</span>=/tmp/openwrt-*-r3-mini-emmc-gpt.bin <span style="color:#666;font-weight:bold;font-style:italic">of</span>=/dev/mmcblk0
+</span></span><span style="display:flex;"><span><span style="color:#888;font-style:italic"># reboot</span>
+</span></span><span style="display:flex;"><span><span style="font-weight:bold;font-style:italic">echo</span> 0 &gt; /sys/block/mmcblk0boot0/force_ro
+</span></span><span style="display:flex;"><span>dd <span style="font-weight:bold;text-decoration:underline">if</span>=/tmp/openwrt-*-bananapi_bpi-r3-mini-emmc-preloader.bin <span style="color:#666;font-weight:bold;font-style:italic">of</span>=/dev/mmcblk0boot0
+</span></span><span style="display:flex;"><span>dd <span style="font-weight:bold;text-decoration:underline">if</span>=/tmp/openwrt-*-bananapi_bpi-r3-mini-emmc-bl31-uboot.fip <span style="color:#666;font-weight:bold;font-style:italic">of</span>=/dev/mmcblk0p3
+</span></span><span style="display:flex;"><span>dd <span style="font-weight:bold;text-decoration:underline">if</span>=/tmp/openwrt-*-bananapi_bpi-r3-mini-initramfs-recovery.itb <span style="color:#666;font-weight:bold;font-style:italic">of</span>=/dev/mmcblk0p4
+</span></span><span style="display:flex;"><span>dd <span style="font-weight:bold;text-decoration:underline">if</span>=/tmp/openwrt-*-bananapi_bpi-r3-mini-squashfs-sysupgrade.itb <span style="color:#666;font-weight:bold;font-style:italic">of</span>=/dev/mmcblk0p5
+</span></span><span style="display:flex;"><span>sync
+</span></span><span style="display:flex;"><span><span style="color:#888;font-style:italic"># reboot again</span>
+</span></span></code></pre></div><h2 class="heading" id="get-to-the-bootloader">
+  Get to the bootloader
+  <a class="anchor" href="#get-to-the-bootloader">#</a>
+</h2>
+<p>After booting the device, a boot menu appears for a brief time.
+If <code>ESC</code> is pressed, we get to the u-boot CLI.
+U-boot is essentially the industry-standard second-stage bootloader for embedded devices.
+It has lots of features, but usually many of them are turned off at compile time,
+so the final bootloader binary is small and easy to flash on limited space.</p>
+<p>By default, it would load the Linux kernel image into memory and jump to it to boot the system.
+Instead, we want to boot the Debian installer here.
+It’s a great thing that OpenWRT’s u-boot is compiled with EFI support.
+With that, it’s very easy to get to the installer.</p>
+<h2 class="heading" id="debian-installation">
+  Debian installation
+  <a class="anchor" href="#debian-installation">#</a>
+</h2>
+<p>For those who installed Debian as a VM or on an x86 machine, I have good news:
+the process is basically the same for the R3 mini.
+However, there will be a few tricks to get to the installer and to avoid leaving a broken system after the installation.</p>
+<h3 class="heading" id="preparations">
+  Preparations
+  <a class="anchor" href="#preparations">#</a>
+</h3>
+<p>At the time of writing, Debian Trixie can be installed on the R3 mini, but it is not released yet, so we need the RC1 installer DVD.
+There are weekly generated DVD images as well, but in my case, that resulted in
+complaints about mismatching kernel and module versions.
+As the installer media, we will use the USB drive, which we need to format to an <strong>EXT4</strong> filesystem.
+Then, simply copy all the files (even the hidden folders) from the mounted Trixie ISO to the USB.</p>
+<p>Now we have the installer files ready, but we will need the device-tree binary to boot the system.
+Unlike in the x86 world, where we have more or less the same boot process, the ARM world is a bit different.
+At x86, hardware components are mostly discovered with ACPI probing,
+while ARM-based platforms prefer hardware descriptions.
+These are different for each device and contain data for Linux about addressable memory, CPU layout/cores, PCIe, USB hubs, etc.
+This descriptor is the standardized and widely-adopted device-tree source (DTS) text-based format,
+which is compiled to binary (DTB) to be used.
+For the R3 mini, we can download the DTB file separately from
+<a href="https://d-i.debian.org/daily-images/arm64/daily/device-tree/mediatek/mt7986a-bananapi-bpi-r3-mini.dtb">here</a>
+Then, copy it to the USB so we can access it when we load the installer.</p>
+<h3 class="heading" id="load-the-installer">
+  Load the installer
+  <a class="anchor" href="#load-the-installer">#</a>
+</h3>
+<p>Connect the USB to the R3 mini (while we’re still in the u-boot console) and load the installer as an EFI payload.
+For that, we will need the DTB file as well, which will be passed to GRUB, which is the default bootloader of Debian.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>usb start
+</span></span><span style="display:flex;"><span>setenv fdt_addr_r 0x40000000
+</span></span><span style="display:flex;"><span>setenv kernel_addr_r 0x40008000
+</span></span><span style="display:flex;"><span>ext4load usb 0:3 <span style="color:#666;font-style:italic">${</span><span style="color:#666;font-weight:bold;font-style:italic">fdt_addr_r</span><span style="color:#666;font-style:italic">}</span> mt7986a-bananapi-bpi-r3-mini.dtb
+</span></span><span style="display:flex;"><span>fatload usb 0:2 <span style="color:#666;font-style:italic">${</span><span style="color:#666;font-weight:bold;font-style:italic">kernel_addr_r</span><span style="color:#666;font-style:italic">}</span> EFI/boot/grubaa64.efi
+</span></span><span style="display:flex;"><span>bootefi <span style="color:#666;font-style:italic">${</span><span style="color:#666;font-weight:bold;font-style:italic">kernel_addr_r</span><span style="color:#666;font-style:italic">}</span> <span style="color:#666;font-style:italic">${</span><span style="color:#666;font-weight:bold;font-style:italic">fdt_addr_r</span><span style="color:#666;font-style:italic">}</span>
+</span></span></code></pre></div><p>This will boot the familiar GRUB with the installer&rsquo;s menu.
+Since we connected with serial console, we only have character interface,
+so instead of a screenshot, I simply &ldquo;copy&rdquo; the menu below:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>/-------------------------------------------------------------\
+</span></span><span style="display:flex;"><span>|                                                             |
+</span></span><span style="display:flex;"><span>|                                                             |
+</span></span><span style="display:flex;"><span>|*Install                                                     |
+</span></span><span style="display:flex;"><span>| Graphical install                                           |
+</span></span><span style="display:flex;"><span>| Advanced options ...                                        |
+</span></span><span style="display:flex;"><span>| Accessible dark contrast installer menu ...                 |
+</span></span><span style="display:flex;"><span>| Install with speech synthesis                               |
+</span></span><span style="display:flex;"><span>|                                                             |
+</span></span><span style="display:flex;"><span>|                                                             |
+</span></span><span style="display:flex;"><span>|                                                             |
+</span></span><span style="display:flex;"><span>|                                                             |
+</span></span><span style="display:flex;"><span>\-------------------------------------------------------------/
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Use the ^ and v keys to select which entry is highlighted.
+</span></span><span style="display:flex;"><span>Press enter to boot the selected OS, `e&#39; to edit the commands
+</span></span></code></pre></div><p>But here we cannot simply proceed with the installation.
+If we try, it will get stuck in a few seconds with a kernel panic.
+Instead, press &rsquo;e&rsquo; and edit the &ldquo;Install&rdquo; GRUB menu entry on the fly.
+The default entry is something like this:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>setparams &#39;Install&#39;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    set background_color=black
+</span></span><span style="display:flex;"><span>    linux    /linux --- quiet
+</span></span><span style="display:flex;"><span>    initrd   /initrd.gz
+</span></span></code></pre></div><p>We have to ignore the uninitialized clocks.
+This is because, at the moment, the clock drivers for MT7986 are shipped as
+kernel modules instead of being built into the kernel.
+However, we cannot reach the initramfs loading without them.
+This is because the kernel expects all the clocks to be bound to their drivers
+before the init phase, which can only happen if they are built-in.
+It’s a classic chicken or egg problem, but we need to advance further.
+<a href="https://blog.dowhile0.org/2024/06/02/some-useful-linux-kernel-cmdline-debug-parameters-to-troubleshoot-driver-issues/">There</a>
+is a good article about the kernel command line parameter we will use in order to ignore these clocks.
+With that in mind, just edit the menu entry like this:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>setparams &#39;Install&#39;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    set background_color=black
+</span></span><span style="display:flex;"><span>    linux    /linux clk_ignore_unused pd_ignore_unused cma=128M console=ttyS0,115200n8
+</span></span><span style="display:flex;"><span>    initrd   /initrd.gz
+</span></span></code></pre></div><p>The <code>console...</code> parameter is optional; it tells the kernel to output its
+log messages to the serial port.
+If it&rsquo;s not given, we can&rsquo;t see error messages printed by the kernel if something goes wrong.</p>
+<p>If there are no issues, we will reach the Debian Installer after booting
+with this entry.</p>
+<h3 class="heading" id="installing-debian">
+  Installing Debian
+  <a class="anchor" href="#installing-debian">#</a>
+</h3>
+<p>The installation is quite straightforward, and plenty of guides are available online if there are issues.
+A few things to look for:</p>
+<ul>
+<li>The DVD installer has almost every driver module included,
+so we are fine with offline installation; no network is needed.</li>
+<li>Even with that, it&rsquo;s worth connecting the R3 mini to the network
+with the USB Ethernet dongle, so it can download up-to-date packages.</li>
+<li>In my case, the built-in WLAN and Ethernet were unavailable. This is because the WLAN driver is included
+on the DVD, but the <code>linux-firmware</code> package is not. The same goes for Ethernet, but there’s not even the driver included.</li>
+<li>I installed the system onto an NVMe SSD. This was intentional, to be able to dual-boot with OpenWRT.</li>
+</ul>
+<h3 class="heading" id="post-installation">
+  Post-installation
+  <a class="anchor" href="#post-installation">#</a>
+</h3>
+<p>When the installer finishes its job, do not reboot the system!
+We have to edit <code>/etc/default/grub</code> and <code>/boot/grub/boot.cfg</code> as we did
+in the installer menu, to ignore the uninitialized clocks.</p>
+<p>For that, press <code>Ctrl+A</code> and <code>2</code> to switch from the installer’s screen to the shell screen.
+Here, edit <code>/boot/grub/boot.cfg</code> with <code>nano</code> (since <code>vi</code> or <code>vim</code> are not included in the installer).
+Search for <code>menuentry 'Debian GNU/Linux'...</code>, which is usually the first entry,
+above <code>menuentry 'Advanced options for Debian GNU/Linux'...</code>.
+Edit or copy the entry entirely and create a new menu entry something like this
+(some text omitted where <code>...</code>):</p>
+<pre tabindex="0"><code>menuentry &#39;R3 mini Debian GNU/Linux&#39; --class debian ... {
+	insmod part_gpt
+	insmod ext2
+...
+	linux	/boot/vmlinuz root=UUID=... console=ttyS0,115200n8 clk_ignore_unused pd_ignore_unused cma=128M
+	initrd	/boot/initrd.img
+  devicetree /boot/mt7986a-bananapi-bpi-r3-mini.dtb
+}
+</code></pre><p>This entry right now is only temporary, only required for the first boot.
+The important part here, aside from ignoring unused clock drivers, is the
+<code>devicetree</code> line, which tells GRUB the path of the DTB that should be passed to the kernel.
+But it’s not there, so first, mount the root partition from the NVMe SSD,
+and copy the DTB from the USB to the <code>/boot</code> folder.</p>
+<p>To make these changes permanent, we need to add the following line
+to the <code>/etc/default/grub</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>GRUB_CMDLINE_LINUX_DEFAULT=&#34;quiet clk_ignore_unused pd_ignore_unused cma=128M&#34;
+</span></span></code></pre></div><p>This does not have an immediate effect; instead, it modifies the GRUB configuration generation
+to append these booting parameters to the kernel arguments.
+Therefore, after we boot into the Debian system, and run the <code>update-grub</code> command or
+update the kernel, these arguments will appear in the newly generated <code>grub.cfg</code>.
+But we’re not there yet…</p>
+<h2 class="heading" id="fixing-the-boot">
+  Fixing the boot
+  <a class="anchor" href="#fixing-the-boot">#</a>
+</h2>
+<p>At the moment, we have Debian installed on the NVMe SSD, but it’s impossible to boot it.
+This is because OpenWRT nor upstream u-boot (at least right now) supports PCIe of the R3 mini.
+There’s a <a href="https://patchwork.ozlabs.org/project/uboot/patch/20240412141051.23943-1-linux@fw-web.de/">patch</a> submitted for that,
+but that’s only an RFC, not intended for merge.</p>
+<p>Frank Wunderlich maintains a fork of u-boot with PCIe enabled.
+I <a href="https://github.com/SPYFF/u-boot/releases">forked</a> this, since I wanted to enable some other features like EFI boot and EXT4 filesystem.
+With this u-boot configuration, we can boot from the NVMe.
+It would be nice if we could do this with the stock OpenWRT u-boot,
+one way to do that would be to keep <code>/boot</code> on the eMMC and the rest of the rootfs on the NVMe.
+But let’s keep this for future work, maybe the subject of another post.</p>
+<h3 class="heading" id="modified-bootchain">
+  Modified bootchain
+  <a class="anchor" href="#modified-bootchain">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Modified bootchain
+</span></span><span style="display:flex;"><span>    for Debian
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>┌───────────────┐ 
+</span></span><span style="display:flex;"><span>│    Bootrom    │  burned into the SoC
+</span></span><span style="display:flex;"><span>└───────┬───────┘
+</span></span><span style="display:flex;"><span>        │
+</span></span><span style="display:flex;"><span>┌───────▼───────┐
+</span></span><span style="display:flex;"><span>│ u-boot, OWRT  │  eMMC
+</span></span><span style="display:flex;"><span>│     stock     │
+</span></span><span style="display:flex;"><span>└───────┬───────┘
+</span></span><span style="display:flex;"><span>        │
+</span></span><span style="display:flex;"><span>┌───────▼───────┐
+</span></span><span style="display:flex;"><span>│ u-boot, fork  │  USB flashdrive
+</span></span><span style="display:flex;"><span>└───────┬───────┘
+</span></span><span style="display:flex;"><span>        │
+</span></span><span style="display:flex;"><span>┌───────▼───────┐
+</span></span><span style="display:flex;"><span>│     GRUB      │  NVMe
+</span></span><span style="display:flex;"><span>└───────┬───────┘
+</span></span><span style="display:flex;"><span>        │
+</span></span><span style="display:flex;"><span>┌───────▼───────┐
+</span></span><span style="display:flex;"><span>│     Linux     │  NVMe
+</span></span><span style="display:flex;"><span>└───────────────┘
+</span></span></code></pre></div><p>This bootchain is complicated, but it doesn&rsquo;t affect the original OpenWRT
+installation and allows dual-booting Debian as well.
+First, the stock OpenWRT u-boot booted, which only chainloads the forked u-boot with PCIe, EXT4, and EFI boot support.
+For convenience, this u-boot binary is placed on a USB flash drive, so it can be replaced easily if needed.
+Next, with EFI boot, this boots the GRUB installed by Debian.
+Previously, we modified <code>grub.cfg</code> so that it can now load the kernel and boot the system.
+To achieve this, we need the following new, persistent u-boot environment configuration.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>setenv bootmenu_11 <span style="color:#666;font-style:italic">&#39;Chainload from u-boot from USB.=run boot_usb_chain ; run bootmenu_confirm_return&#39;</span>
+</span></span><span style="display:flex;"><span>setenv bootmenu_default <span style="color:#666;font-style:italic">&#39;11&#39;</span>
+</span></span><span style="display:flex;"><span>setenv bootmenu_delay <span style="color:#666;font-style:italic">&#39;5&#39;</span>
+</span></span><span style="display:flex;"><span>setenv boot_usb_chain <span style="color:#666;font-style:italic">&#39;led $bootled_pwr on ; usb start ; fatload usb 0:1 $loadaddr uboot.bin ; go $loadaddr ; led $bootled_pwr off&#39;</span>
+</span></span><span style="display:flex;"><span>env save
+</span></span></code></pre></div><p>The first line create a new menu entry in OpenWRT default bootmenu,
+the second line set this entry to the default.
+The forth line initialize the u-boot USB subsystem, load the our customized fork u-boot&rsquo;s
+binary <code>uboot.bin</code> to the memory and jumps into it.
+Lastly, <code>env save</code> makes these changes persistent.</p>
+<p>In this u-boot, we also need some modifications:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>setenv bootmenu_4 <span style="color:#666;font-style:italic">&#39;5. Boot Debian from NVMe (EFI).=run bootnvmeefi_deb&#39;</span>
+</span></span><span style="display:flex;"><span>setenv bootmenu_default <span style="color:#666;font-style:italic">&#39;4&#39;</span>
+</span></span><span style="display:flex;"><span>setenv bootnvmeefi_deb <span style="color:#666;font-style:italic">&#39;usb start ; pci enum ; nvme scan ; setenv kernel_addr_r 0x40008000 ; setenv fdt_addr_r 0x40000000 ; fatload usb 0:1 ${fdt_addr_r} mt7986a-bananapi-bpi-r3-mini.dtb ; fatload nvme 0:2 ${kernel_addr_r} EFI/debian/shimaa64.efi ; bootefi ${kernel_addr_r} ${fdt_addr_r}&#39;</span>
+</span></span><span style="display:flex;"><span>env save
+</span></span></code></pre></div><p>The most important aspect is the lengthy line.
+It loads the devicetree from USB, the GRUB EFI payload from the NVMe, and finally boots it.
+From that point, we&rsquo;ll have a normal GRUB to Linux bootchain, which is what we&rsquo;d expect in Debian/Ubuntu.</p>
+<p>In the GRUB menu, we have to choose the <code>R3 mini Debian GNU/Linux</code> entry, which was created in the post-installation step of the guide. If everything is OK, the board should boot Debian successfully.</p>
+<h3 class="heading" id="on-the-first-boot-of-debian">
+  On the First Boot of Debian
+  <a class="anchor" href="#on-the-first-boot-of-debian">#</a>
+</h3>
+<p>The bootmenu entry used to load Linux was only a temporary entry in <code>grub.cfg</code>.
+This is because <code>grub.cfg</code> is automatically generated on each kernel update,
+based on the rules defined in the defaults file: <code>/etc/default/grub</code>.
+To make this entry resistant to kernel updates, we have to extend the kernel parameters as shown below:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#666;font-weight:bold;font-style:italic">GRUB_CMDLINE_LINUX_DEFAULT</span>=<span style="color:#666;font-style:italic">&#34;quiet clk_ignore_unused pd_ignore_unused cma=128M&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#666;font-weight:bold;font-style:italic">GRUB_CMDLINE_LINUX</span>=<span style="color:#666;font-style:italic">&#34;quiet clk_ignore_unused pd_ignore_unused cma=128M&#34;</span>
+</span></span></code></pre></div><p>If only <code>GRUB_CMDLINE_LINUX_DEFAULT</code> is modified, only the default menuentry will be extended with these parameters.
+With that, it&rsquo;s safe to execute <code>sudo update-grub</code> to manually trigger a <code>grub.cfg</code> generation.
+Before rebooting, verify that the new parameters are included in all menuentries:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat /boot/grub/grub.cfg | grep linux | grep clk
+</span></span></code></pre></div><p>If the output is not empty, it&rsquo;s safe to reboot the board and, in the future,
+simply choose the default menuentry.
+Kernel updates shouldn&rsquo;t disrupt the boot process either.</p>
+
+    </div>
+  </article>
+
+  
+
+  
+
+  
+  
+
+<div class="single-pagination">
+    <hr />
+
+    <div class="flexnowrap">
+
+        <div class="single-pagination-prev">
+            
+            <div class="single-pagination-container-prev">
+                <div class="single-pagination-text">←</div>
+                <div class="single-pagination-text">
+                    <a href="/posts/net/so-priority-cmsg/">
+                        Per-packet SO_PRIORITY socket API
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="single-pagination-next">
+            
+        </div>
+
+    </div>
+
+    <hr />
+</div>
+
+
+
+  
+
+  
+
+  
+  <div class="back-to-top">
+    <a href="#top">
+      back to top
+    </a>
+  </div>
+  
+
+</div>
+
+
+    </main>
+  </div>
+
+  
+  
+
+
+
+
+
+    
+
+
+
+
+  <footer>
+    
+
+    
+    
+
+
+
+
+
+    
+
+
+
+
+    
+    <p>Powered by
+        <a href="https://gohugo.io/">Hugo</a>
+        and
+        <a href="https://github.com/tomfran/typo">tomfran/typo</a>
+    </p>
+    
+    
+    
+
+
+  </footer>
+
+  
+</body>
+
+<script src="/js/theme-switch.js"></script>
+<script defer src="/js/copy-code.js"></script>
+</html>
